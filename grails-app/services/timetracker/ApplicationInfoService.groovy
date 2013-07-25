@@ -5,13 +5,23 @@ class ApplicationInfoService {
 
 	private void saveActiveWindow(ApplicationInfo awInfo){
 		if(awInfo){
+			
+			if(!lastApplicationInfo){
+				lastApplicationInfo=awInfo
+				lastApplicationInfo.focusedFrom=new Date();
+				return
+			}
+			// Update always so, there is no 5 sec cap between
+			lastApplicationInfo.updatedCount++
+			lastApplicationInfo.focusedUntil=new Date();
+			if(!lastApplicationInfo.save(flush:true)){
+				println awInfo.errors
+			}
 			if(lastApplicationInfo?.name == awInfo.name && lastApplicationInfo?.title == awInfo.title){
-				lastApplicationInfo.updatedCount++
-				if(!lastApplicationInfo.save(flush:true)){
-					println awInfo.errors
-				}
+				
 			}else{
 				lastApplicationInfo=awInfo
+				lastApplicationInfo.focusedFrom=new Date();
 			}
 		}else{
 			lastApplicationInfo=null

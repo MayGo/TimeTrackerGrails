@@ -1,8 +1,8 @@
 package timetracker;
 
-public class LinuxApplicationInfo {
+public class LinuxDataCollector implements DataCollector{
 
-	public static ApplicationInfo getActiveWindowName(){
+	public static ApplicationInfo getFocusedWindow(){
 		String activeWindowStr = "xprop -root _NET_ACTIVE_WINDOW".execute(null,new File("/")).text
 		if(activeWindowStr){
 			List activeWindowArr= activeWindowStr.split(" ") as List

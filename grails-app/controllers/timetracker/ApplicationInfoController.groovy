@@ -18,7 +18,7 @@ class ApplicationInfoController {
 	
 	def timeline(){
 		params.max = 100
-		def l=ApplicationInfo.list(params).collect{['Application',it.name, it.dateCreated.getTime() , it.lastUpdated.getTime() ]}
+		def l=ApplicationInfo.list(params).collect{['Application',it.name, it.focusedFrom.getTime() , it.focusedUntil.getTime() ]}
 		[applicationInfoInstanceList: l as JSON, applicationInfoInstanceTotal: ApplicationInfo.count()]
 	}
 
