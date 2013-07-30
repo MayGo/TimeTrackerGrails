@@ -5,9 +5,9 @@ package timetracker
 import org.junit.*
 import grails.test.mixin.*
 
-@TestFor(ApplicationInfoController)
-@Mock(ApplicationInfo)
-class ApplicationInfoControllerTests {
+@TestFor(AppTrackItemController)
+@Mock(AppTrackItem)
+class AppTrackItemControllerTests {
 
     def populateValidParams(params) {
         assert params != null
@@ -47,7 +47,7 @@ class ApplicationInfoControllerTests {
 
         assert response.redirectedUrl == '/applicationInfo/show/1'
         assert controller.flash.message != null
-        assert ApplicationInfo.count() == 1
+        assert AppTrackItem.count() == 1
     }
 
     void testShow() {
@@ -57,7 +57,7 @@ class ApplicationInfoControllerTests {
         assert response.redirectedUrl == '/applicationInfo/list'
 
         populateValidParams(params)
-        def applicationInfo = new ApplicationInfo(params)
+        def applicationInfo = new AppTrackItem(params)
 
         assert applicationInfo.save() != null
 
@@ -75,7 +75,7 @@ class ApplicationInfoControllerTests {
         assert response.redirectedUrl == '/applicationInfo/list'
 
         populateValidParams(params)
-        def applicationInfo = new ApplicationInfo(params)
+        def applicationInfo = new AppTrackItem(params)
 
         assert applicationInfo.save() != null
 
@@ -95,7 +95,7 @@ class ApplicationInfoControllerTests {
         response.reset()
 
         populateValidParams(params)
-        def applicationInfo = new ApplicationInfo(params)
+        def applicationInfo = new AppTrackItem(params)
 
         assert applicationInfo.save() != null
 
@@ -139,17 +139,17 @@ class ApplicationInfoControllerTests {
         response.reset()
 
         populateValidParams(params)
-        def applicationInfo = new ApplicationInfo(params)
+        def applicationInfo = new AppTrackItem(params)
 
         assert applicationInfo.save() != null
-        assert ApplicationInfo.count() == 1
+        assert AppTrackItem.count() == 1
 
         params.id = applicationInfo.id
 
         controller.delete()
 
-        assert ApplicationInfo.count() == 0
-        assert ApplicationInfo.get(applicationInfo.id) == null
+        assert AppTrackItem.count() == 0
+        assert AppTrackItem.get(applicationInfo.id) == null
         assert response.redirectedUrl == '/applicationInfo/list'
     }
 }

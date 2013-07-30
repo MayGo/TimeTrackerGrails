@@ -2,7 +2,7 @@ package timetracker;
 
 public class LinuxDataCollector implements DataCollector{
 
-	public static ApplicationInfo getFocusedWindow(){
+	public AppTrackItem getFocusedWindow(){
 		String activeWindowStr = "xprop -root _NET_ACTIVE_WINDOW".execute(null,new File("/")).text
 		if(activeWindowStr){
 			List activeWindowArr= activeWindowStr.split(" ") as List
@@ -19,7 +19,7 @@ public class LinuxDataCollector implements DataCollector{
 					String appName= (classRx)?classRx[0][1].split("=")[1].trim().replace("\"", "").split(",")[0]:""
 					String title=(titleRx)?titleRx[0][1].split("=")[1].trim().replace("\"", ""):""
 					
-					ApplicationInfo awInfo=new ApplicationInfo(name:appName, title:title)
+					AppTrackItem awInfo=new AppTrackItem(name:appName, title:title)
 					return awInfo
 					
 				}else

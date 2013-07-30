@@ -3,10 +3,10 @@ package timetracker
 class TestDataService {
 
 	def buildTestData() {
-		if(!ApplicationInfo.count()){
+		if(!AppTrackItem.count()){
 			println "Building testdata,,,,"
 			testArr.each{
-				ApplicationInfo.build(name:it[0], title:it[1], focusedFrom:new Date(it[2]), focusedUntil: new Date(it[3]))
+				AppTrackItem.build(name:it[0], title:it[1], beginDate:new Date(it[2]), endDate: new Date(it[3]))
 			}
 		}
 	}

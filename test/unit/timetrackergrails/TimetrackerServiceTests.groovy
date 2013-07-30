@@ -1,4 +1,4 @@
-package timetracker
+package timetrackergrails
 
 
 
@@ -8,8 +8,8 @@ import org.junit.*
 /**
  * See the API for {@link grails.test.mixin.services.ServiceUnitTestMixin} for usage instructions
  */
-@TestFor(AppTrackItemService)
-class AppTrackItemServiceTests {
+@TestFor(TimetrackerService)
+class TimetrackerServiceTests {
 
     void testSomething() {
         fail "Implement me"

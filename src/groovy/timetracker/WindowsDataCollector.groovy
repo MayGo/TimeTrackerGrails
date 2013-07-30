@@ -11,8 +11,9 @@ import com.sun.jna.platform.win32.User32;
 import com.sun.jna.ptr.IntByReference;
 
 public class WindowsDataCollector implements DataCollector{
+	def trackTagService
 
-	public ApplicationInfo getFocusedWindow(){
+	public AppTrackItem getFocusedWindow(){
 		HWND focusedWindow = User32.INSTANCE.GetForegroundWindow();
 		//Get window title
 		int titleLength = User32.INSTANCE.GetWindowTextLength(focusedWindow) + 1;
@@ -28,7 +29,7 @@ public class WindowsDataCollector implements DataCollector{
 		def cmd='TASKLIST /v /fi "PID eq '+pid+'" /FO CSV /NH'
 		def appName=cmd.execute().text?.replaceAll('"', '')?.split(",")[0]
 
-		ApplicationInfo awInfo=new ApplicationInfo(name:appName, title:title)
+		AppTrackItem awInfo=new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(appName), title:title)
 		return awInfo
 	}
 }

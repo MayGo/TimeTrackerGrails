@@ -2,6 +2,5 @@ package timetracker;
 
 interface DataCollector {
 
-	//public ApplicationInfo getFocusedWindow()
-
+	public AppTrackItem getFocusedWindow()
 }
