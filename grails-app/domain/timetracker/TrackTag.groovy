@@ -2,7 +2,16 @@ package timetracker
 
 class TrackTag {
 	String name
-	
+	Color color
+
+	TrackTag() {
+	}
+	TrackTag(String name) {
+		this.name=name
+		this.color=new Color('').save()// TODO: If track tag is not saved color should not be saved
+		println("Setting TrackTag"+name)
+	}
+
 	Date dateCreated
 	Date lastUpdated
 

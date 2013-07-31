@@ -9,4 +9,11 @@ modules = {
 		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.css'
 		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.js'
 	}
+	timetracker {
+		dependsOn 'jquery'
+		resource url:'js/timetracker-chart-d3.css'
+		resource url:'js/timetracker-chart-d3.js'
+		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.css'
+		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.js'
+	}
 }
