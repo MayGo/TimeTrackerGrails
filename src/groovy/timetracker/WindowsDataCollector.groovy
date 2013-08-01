@@ -29,7 +29,7 @@ public class WindowsDataCollector implements DataCollector{
 		def cmd='TASKLIST /v /fi "PID eq '+pid+'" /FO CSV /NH'
 		def appName=cmd.execute().text?.replaceAll('"', '')?.split(",")[0]
 
-		AppTrackItem awInfo=new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(appName), title:title)
+		AppTrackItem awInfo=new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(appName), title:title)//TODO: move?
 		return awInfo
 	}
 }

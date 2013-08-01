@@ -17,7 +17,7 @@ class AppTrackItemController {
 	}
 
 	def timeline(){
-		params.max = 100
+		params.max = 1000
 		def l=AppTrackItem.list(params).collect{
 			[
 				taskName:'Application',
@@ -29,6 +29,7 @@ class AppTrackItemController {
 				endDate:it.endDate.getTime()
 			]
 		}
+		//new File("testData.json").write((l as JSON).toString())
 		[appTrackItemInstanceList: l as JSON, timeBegin: l.max{it.begin}.begin, timeEnd: l.max{it.end}.end]
 	}
 

@@ -3,7 +3,7 @@ import timetracker.WindowsDataCollector
 class BootStrap {
 	def testDataService
     def init = { servletContext ->
-		//testDataService.buildTestData()
+		testDataService.buildTestData()
     }
     def destroy = {
     }
