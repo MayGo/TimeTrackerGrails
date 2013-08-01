@@ -30,8 +30,8 @@
 		self.trackItems = options.trackItems;
 		self.trackNames = options.trackNames;
 
-		self.height = document.body.clientHeight - this.options.margin.top - this.options.margin.bottom - 5;
-		self.width = document.body.clientWidth - this.options.margin.right - this.options.margin.left - 5;
+		self.height = $(this.element).height() - this.options.margin.top - this.options.margin.bottom - 5;
+		self.width = $(this.element).width() - this.options.margin.right - this.options.margin.left - 5;
 
 		this.init();
 	}
@@ -97,7 +97,7 @@
 			var height = self.height;
 			var width = self.width;
 
-			var svg = d3.select("body").append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("class", "chart").attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
+			var svg = d3.select(self.plugin.element).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("class", "chart").attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 			svg.call(d3.behavior.zoom().x(self.xScale).on("zoom", this.redraw));
 
 			svg.selectAll(".chart").data(self.trackItems, self.keyFunction).enter().append("rect").attr("rx", 5).attr("ry", 5).style("fill", function(d) {
