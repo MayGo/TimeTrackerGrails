@@ -11,3 +11,12 @@
 	stroke: #D5D5D5;
 	shape-rendering: crispEdges;
 }
+
+/**
+* Brush
+*/
+.extent {
+  fill: #000;
+  fill-opacity: .125;
+  stroke: #049CD9;
+}

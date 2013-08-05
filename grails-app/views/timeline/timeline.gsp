@@ -12,17 +12,19 @@
 
 <g:javascript>
      jQuery(document).ready(function($) {
+       onBrushSelection = function (startDate, endDate){
+         console.log("onBrushSelection")
+         console.log(startDate)
+         console.log(endDate)
+       }
+       
        $('#timetrackerChart').timetrackerD3({
          trackItems: ${appTrackItemInstanceList},
-         trackNames:["Application"]
+         trackNames:["Application"],
+         onBrushSelection:onBrushSelection
        });
      });
     
-function changeTimeDomain(timeDomainString){
-  $('#timetrackerChart').data('plugin_timetrackerD3').changeTimeDomain(timeDomainString);
-}
-
-
 function addTask() {
 
     var lastEndDate = getEndDate();
@@ -53,14 +55,16 @@ function removeTask() {
 <body>
 
  <section id="show-timeline" class="first">
-  <button type="button" onclick="addTask()" class="btn btn-medium">Add Task</button>
-  <button type="button" onclick="removeTask()" class="btn btn-medium">Remove Task</button>
-  <button type="button" onclick="changeTimeDomain('1min')" class="btn btn-medium">1 min</button>
-  <button type="button" onclick="changeTimeDomain('1hr')" class="btn btn-medium">1 HR</button>
-  <button type="button" onclick="changeTimeDomain('3hr')" class="btn btn-medium">3 HR</button>
-  <button type="button" onclick="changeTimeDomain('6hr')" class="btn btn-medium">6 HR</button>
-  <button type="button" onclick="changeTimeDomain('1day')" class="btn btn-medium">1 DAY</button>
-  <button type="button" onclick="changeTimeDomain('1week')" class="btn btn-medium">1 WEEK</button>
+  <ul id="Menu" class="nav nav-pills">
+   <li><g:link action="create">
+     <i class="icon-trash"></i>
+     <g:message code="default.remove.label" args="['Tag']" />
+    </g:link></li>
+   <li><g:link action="create">
+     <i class="icon-plus"></i>
+     <g:message code="default.new.label" args="['Tag']" />
+    </g:link></li>
+  </ul>
   <div id="timetrackerChart"></div>
  </section>
 
