@@ -15,7 +15,8 @@
 			left : 70
 		},
 		defaultTimeDomainString : "1hr",
-		onBrushSelection: function(startDate, endDate){}
+		onBrushSelection : function(startDate, endDate) {
+		}
 	};
 	var self = this;
 
@@ -102,17 +103,16 @@
 			var width = self.width;
 
 			var chart = d3.select(self.plugin.element).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("class", "chart").attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
-		/*	d3.select("svg").on("click", function(d, i) {
-				// set var to enable brush selecting
-				//alert(2);
-				self.plugin.toggleBrush(true);
-			});
-		*/
-			chart.selectAll(".items").data(self.trackItems, self.keyFunction).enter().append("rect").attr("rx", 5).attr("ry", 5).style("fill", function(d) {
+			/*
+			 * d3.select("svg").on("click", function(d, i) { // set var to
+			 * enable brush selecting //alert(2); self.plugin.toggleBrush(true);
+			 * });
+			 */
+			chart.selectAll(".items").data(self.trackItems, self.plugin.keyFunction).enter().append("rect").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
 				return self.xScale(d.startDate);
-			}).attr("transform", self.rectTransform).attr("height", function(d) {
+			}).attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
@@ -120,10 +120,12 @@
 				// alert(i);
 				alert(d.name + ": " + d.desc);
 				d3.event.stopPropagation();
-			});
-
+			})
+			
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
 			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
+			
+			self.plugin.addTipsy();
 		},
 		initAxis : function() {
 			console.log("Init axis.");
@@ -136,7 +138,7 @@
 			self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").tickFormat(d3.time.format(self.tickFormat)).tickSubdivide(true).tickSize(8).tickPadding(8);
 			self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").tickSize(0);
 		},
-		initZoom:function(){
+		initZoom : function() {
 			console.log("init zoom");
 			var chart = d3.select(".chart");
 			chart.call(d3.behavior.zoom().x(self.xScale).on("zoom", this.redraw));
@@ -148,30 +150,28 @@
 			var width = self.width;
 
 			var brush = d3.svg.brush().x(self.xScale).on("brushstart", self.plugin.brushstart).on("brush", self.plugin.brushmove).on("brushend", self.plugin.brushend);
-			//make brush available globally
-			self.brush=brush
+			// make brush available globally
+			self.brush = brush
 			var svg = d3.select("svg");
 
-			var brushSvg=svg.append('g').attr('class', 'x brush').attr("transform", "translate(" + margin.left + ", " + 0 + ")").call(brush)
+			var brushSvg = svg.append('g').attr('class', 'x brush').attr("transform", "translate(" + margin.left + ", " + 0 + ")").call(brush)
 			brushSvg.select(".background").attr('height', margin.top)
 			brushSvg.select(".extent").attr('height', height)
-			
-			
-			//make it available in other functions
+
+			// make it available in other functions
 			self.brush = brush
 		},
 
 		// Clear the previously-active brush, if any.
 		brushstart : function(p) {
-			 var p = d3.event.target;
-			//console.log(p);
-			//d3.select(".brush").selectAll("rect").attr('height', self.height)
-			/*if (self.brushCell !== p) {
-				cell.call(self.brush.clear());
-				x.domain(domainByTrait[p.x]);
-				y.domain(domainByTrait[p.y]);
-				self.brushCell = p;
-			}*/
+			var p = d3.event.target;
+			// console.log(p);
+			// d3.select(".brush").selectAll("rect").attr('height', self.height)
+			/*
+			 * if (self.brushCell !== p) { cell.call(self.brush.clear());
+			 * x.domain(domainByTrait[p.x]); y.domain(domainByTrait[p.y]);
+			 * self.brushCell = p; }
+			 */
 		},
 
 		// Highlight the selected circles.
@@ -187,9 +187,13 @@
 		brushend : function() {
 			var minExtent = self.brush.extent()[0];
 			var maxExtent = self.brush.extent()[1];
-			self.plugin.options.onBrushSelection(minExtent,maxExtent);
-			//if (self.brush.empty())
-			//	svg.selectAll(".hidden").classed("hidden", false);
+			self.plugin.options.onBrushSelection(minExtent, maxExtent);
+			// if (self.brush.empty())
+			// svg.selectAll(".hidden").classed("hidden", false);
+		},
+		addItem : function(item) {
+			self.trackItems.push(item);
+			self.plugin.redraw();
 		},
 		redraw : function() {
 			console.log("redrawing...")
@@ -198,17 +202,23 @@
 
 			var svg = d3.select("svg");
 
-			var rect = svg.select(".chart").selectAll("rect").data(tasks, self.keyFunction);
+			var rect = svg.select(".chart").selectAll("rect").data(tasks, self.plugin.keyFunction);
 
-			// rect.enter().insert("rect", ":first-child").attr("rx",
-			// 5).attr("ry", 5).transition().attr("y", 0).attr("transform",
-			// self.rectTransform).attr("height", function(d) {
-			// return self.yScale.rangeBand();
-			// }).attr("width", function(d) {
-			// return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			// });
+			rect.enter().insert("rect", ":first-child").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
+				return d.color;
+			}).attr("y", 0).attr("x", function(d) {
+				return self.xScale(d.startDate);
+			}).attr("transform", self.plugin.rectTransform).attr("height", function(d) {
+				return self.yScale.rangeBand();
+			}).attr("width", function(d) {
+				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+			}).on("click", function(d, i) {
+				// alert(i);
+				alert(d.name + ": " + d.desc);
+				d3.event.stopPropagation();
+			});
 
-			rect.transition().attr("transform", self.rectTransform).attr("height", function(d) {
+			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
@@ -218,7 +228,18 @@
 
 			svg.select(".x").transition().call(self.xAxis);
 			svg.select(".y").transition().call(self.yAxis);
+			self.plugin.addTipsy();
 
+		},
+		addTipsy : function() {
+			$('svg .trackItem').tipsy({
+				gravity : 's',
+				html : true,
+				title : function() {
+					var d = this.__data__;
+					return '<div>' + d.name + '</div>';
+				}
+			});
 		},
 
 		keyFunction : function(d) {
@@ -226,7 +247,7 @@
 		},
 
 		rectTransform : function(d) {
-			return "translate(" + self.xScale(d.startDate) + "," + self.yScale(d.taskName) + ")";
+			return "translate(" + 0 + "," + self.yScale(d.taskName) + ")";
 		},
 		getMaxDate : function() {
 			var tasks = self.trackItems;

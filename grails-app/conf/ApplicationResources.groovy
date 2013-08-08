@@ -15,5 +15,11 @@ modules = {
 		resource url:'js/timetracker-chart-d3.js'
 		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.css'
 		resource  url:'http://cdnjs.cloudflare.com/ajax/libs/qtip2/2.0.1/jquery.qtip.min.js'
+		resource url:'js/bootstrap-notify.js'
+		resource url:'js/bootstrap-notify.css'
+		resource url:'js/jquery.tipsy.js'
+		resource url:'js/tipsy.css'
+		//resource url:'js/jquery.jgrowl.min.css'
+		//resource url:'js/jquery.jgrowl.map'
 	}
 }

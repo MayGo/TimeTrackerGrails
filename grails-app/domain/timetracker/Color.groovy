@@ -8,8 +8,6 @@ class Color{
 	}
 	Color(String rgb) {
 		this.rgb=(rgb)?:this.randomVividRgbCode()
-		
-		println this.rgb
 	}
 	static constraints = {
 	}

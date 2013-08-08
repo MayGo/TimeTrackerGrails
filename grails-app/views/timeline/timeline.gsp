@@ -14,13 +14,13 @@
      jQuery(document).ready(function($) {
        onBrushSelection = function (startDate, endDate){
          console.log("onBrushSelection")
-         console.log(startDate)
-         console.log(endDate)
+         $('#beginDate').val(startDate.getTime())
+         $('#endDate').val(endDate.getTime())
        }
        
        $('#timetrackerChart').timetrackerD3({
          trackItems: ${appTrackItemInstanceList},
-         trackNames:["Application"],
+         trackNames:["AppTrackItem", "LogTrackItem"],
          onBrushSelection:onBrushSelection
        });
      });
@@ -53,20 +53,65 @@ function removeTask() {
 
 </head>
 <body>
+  <r:script>
+          
+			$(document).ready(function() {
+  			  $('#addTagSubmit').click(function(){
+                  if ($('#tag').val()==="") {
+                    // invalid
+                    $('#tag').next('.help-inline').show();
+                    return false;
+                  }else if ($('#beginDate').val()==="" || $('#endDate').val()==="") {
+                    alert("BeginDate or EndDate not specified!");
+                    return false;
+                  }
+                  else {
+                    // submit the form here
+                    $.post($('#addTagForm').attr('action'),$("#addTagForm").serialize(), function(data) {
+console.log(data);
+var plugin = $("#timetrackerChart").timetrackerD3().data("plugin_timetrackerD3")
+                        plugin.addItem(data)
+                         $('#addTagDialog').modal('hide')  
+                    			// $('.top-left').notify({
+                                //    message: { text: data }
+                               //   }).show();
+                    });
+                    return true;
+                  }
+                    
+              });
+			});
+			
+       </r:script>
+       <div class='notifications top-left'></div>
+  <div id="addTagDialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="addTagDialogLabel" aria-hidden="true"
+    style="display: none;">
+    <div class="modal-header">
+      <a href="#" class="close" data-dismiss="modal" aria-hidden="true">×</a>
+      <h3 id="addTagDialogLabel">Add new tag</h3>
+    </div>
+    <div class="modal-body">
+      <form id="addTagForm" method="POST" action="${createLink(controller:'logTrackItem',action: 'save')}" >
+        <g:render template="/logTrackItem/form" />
+      </form>
+    </div>
+    <div class="modal-footer">
+      <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+      <a href="#" id="addTagSubmit" class="btn btn-primary">OK</a>
+    </div>
+  </div>
 
- <section id="show-timeline" class="first">
-  <ul id="Menu" class="nav nav-pills">
-   <li><g:link action="create">
-     <i class="icon-trash"></i>
-     <g:message code="default.remove.label" args="['Tag']" />
-    </g:link></li>
-   <li><g:link action="create">
-     <i class="icon-plus"></i>
-     <g:message code="default.new.label" args="['Tag']" />
-    </g:link></li>
-  </ul>
-  <div id="timetrackerChart"></div>
- </section>
+  <section id="show-timeline" class="first">
+    <ul id="Menu" class="nav nav-pills">
+      <li><g:link action="delete">
+          <i class="icon-trash"></i>
+          <g:message code="default.remove.label" args="['Tag']" />
+        </g:link></li>
+      <li><a data-toggle="modal" href="#addTagDialog"> <i class="icon-plus"></i> <g:message code="default.new.label" args="['Tag']" />
+      </a></li>
+    </ul>
+    <div id="timetrackerChart"></div>
+  </section>
 
 
 </body>

@@ -8,19 +8,24 @@ import grails.converters.JSON
  */
 class TimelineController {
 
+
+	def timelineService
+		
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
 	def index(){
 		redirect action: "timeline"
 	}
 	def timeline(){
-		params.max = 1000
-		def l=AppTrackItem.list(params).collect{
+		//params.max = 10
+		def today = new Date()
+			today.clearTime()
+		def l=timelineService.trackItemsInBetween(today, null)?.collect{
 			[
-				taskName:'Application',
-				id:it.tag.name,
+				taskName:it.getClass().getSimpleName(),
+				id:it.id,
 				name:it.tag.name,
-				desc:it.title,
+				desc:(it.hasProperty('title'))?it.title:"",
 				color: it.tag.color.rgb,
 				startDate:it.beginDate.getTime(),
 				endDate:it.endDate.getTime()
