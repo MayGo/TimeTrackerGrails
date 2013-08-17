@@ -47,6 +47,7 @@
 			this.initSvg();
 			this.initZoom();
 			this.initBrush();
+			this.initSelectionTool();
 		},
 
 		setTimeDomain : function(timeDomainString) {
@@ -116,16 +117,13 @@
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			}).on("click", function(d, i) {
-				// alert(i);
-				alert(d.name + ": " + d.desc);
-				d3.event.stopPropagation();
-			})
-			
+			}).on("click", self.plugin.onClickTrackItem)
+
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
 			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
-			
-			self.plugin.addTipsy();
+
+			// uncomment
+			// self.plugin.addTipsy();
 		},
 		initAxis : function() {
 			console.log("Init axis.");
@@ -151,46 +149,95 @@
 
 			var brush = d3.svg.brush().x(self.xScale).on("brushstart", self.plugin.brushstart).on("brush", self.plugin.brushmove).on("brushend", self.plugin.brushend);
 			// make brush available globally
-			self.brush = brush
 			var svg = d3.select("svg");
 
-			var brushSvg = svg.append('g').attr('class', 'x brush').attr("transform", "translate(" + margin.left + ", " + 0 + ")").call(brush)
+			var brushSvg = svg.append('g').attr('class', 'brush').attr("transform", "translate(" + margin.left + ", " + 0 + ")").call(brush)
+			brushSvg.selectAll("rect").attr('height', height)
 			brushSvg.select(".background").attr('height', margin.top)
-			brushSvg.select(".extent").attr('height', height)
-
 			// make it available in other functions
 			self.brush = brush
 		},
 
-		// Clear the previously-active brush, if any.
 		brushstart : function(p) {
-			var p = d3.event.target;
-			// console.log(p);
-			// d3.select(".brush").selectAll("rect").attr('height', self.height)
-			/*
-			 * if (self.brushCell !== p) { cell.call(self.brush.clear());
-			 * x.domain(domainByTrait[p.x]); y.domain(domainByTrait[p.y]);
-			 * self.brushCell = p; }
-			 */
+			//var p = d3.event.target;
 		},
 
-		// Highlight the selected circles.
 		brushmove : function(p) {
-			var e = self.brush.extent();
-			// svg.selectAll("circle").classed("hidden", function(d) {
-			// return e[0][0] > d[p.x] || d[p.x] > e[1][0] || e[0][1] > d[p.y]
-			// || d[p.y] > e[1][1];
-			// });
+			//var e = self.brush.extent();
 		},
 
-		// If the brush is empty, select all circles.
 		brushend : function() {
 			var minExtent = self.brush.extent()[0];
 			var maxExtent = self.brush.extent()[1];
+			// Add vars to be added to new item start/enddate
 			self.plugin.options.onBrushSelection(minExtent, maxExtent);
-			// if (self.brush.empty())
-			// svg.selectAll(".hidden").classed("hidden", false);
 		},
+		/*
+		 * Selection tool to select an item on timeline and to edit its bounds
+		 */
+		initSelectionTool : function() {
+
+			var margin = this.options.margin;
+
+			var selectionTool = d3.svg.brush().x(self.xScale).on("brushstart", self.plugin.selectionToolBrushStart).on("brush", self.plugin.selectionToolBrushMove).on("brushend", self.plugin.selectionToolBrushEnd);
+
+			var selectionToolSvg = d3.select("svg").append('g').attr('class', 'selectionTool').attr("transform", "translate(" + margin.left + ", " + margin.top + ")").call(selectionTool)
+			// make it available in other functions
+			self.selectionTool = selectionTool
+		},
+		selectionToolBrushStart : function(p) {
+			// var p = d3.event.target;
+		},
+
+		selectionToolBrushMove : function(p) {
+		},
+
+		selectionToolBrushEnd : function() {
+			// change data based on selection brush
+			self.selectedTrackItemData.startDate = self.selectionTool.extent()[0].getTime();
+			self.selectedTrackItemData.endDate = self.selectionTool.extent()[1].getTime();
+
+			self.plugin.changeTrackItem(self.selectedTrackItemData)
+
+		},
+		/*
+		 * Function do transition one item based on changed data, basically
+		 * beginDate/endDate
+		 */
+		changeTrackItem : function(data) {
+			var rect = d3.select("svg").select(".chart").selectAll("rect").data([ data ], self.plugin.keyFunction);
+			rect.transition().attr("transform", self.plugin.rectTransform).attr("width", function(d) {
+				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+			}).attr("x", function(d) {
+				return self.xScale(d.startDate);
+			});
+		},
+		onClickTrackItem : function(d, i) {
+			console.log("onClickTrackItem")
+			var p = d3.select(this);
+			self.selectedTrackItem = p;
+			var data = p.data()[0];
+			self.selectedTrackItemData = data;
+			var selectionToolSvg = d3.select(".selectionTool");
+			var traslate = p.attr('transform');
+			var x = new Number(p.attr('x'));
+			var y = new Number(p.attr('y'));
+
+			// position brush same as trackitem
+			selectionToolSvg.selectAll("rect").attr('height', p.attr('height')).attr("transform", traslate);
+
+			// Make brush same size as trackitem
+			self.selectionTool.extent([ data.startDate, data.endDate ])
+			selectionToolSvg.call(self.selectionTool)
+
+			// remove crosshair outside of item
+			selectionToolSvg.select(".background").attr('width', p.attr('width'));
+
+			if (d.taskName === "LogTrackItem") {
+
+			}
+		},
+
 		addItem : function(item) {
 			self.trackItems.push(item);
 			self.plugin.redraw();
@@ -212,11 +259,7 @@
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			}).on("click", function(d, i) {
-				// alert(i);
-				alert(d.name + ": " + d.desc);
-				d3.event.stopPropagation();
-			});
+			}).on("click", self.plugin.onClickTrackItem);
 
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
@@ -228,18 +271,33 @@
 
 			svg.select(".x").transition().call(self.xAxis);
 			svg.select(".y").transition().call(self.yAxis);
-			self.plugin.addTipsy();
+
+			// TODO: This crashes when redrawig
+			// self.plugin.addTipsy();
 
 		},
 		addTipsy : function() {
-			$('svg .trackItem').tipsy({
-				gravity : 's',
-				html : true,
-				title : function() {
-					var d = this.__data__;
-					return '<div>' + d.name + '</div>';
+			$('svg .trackItem').qtip({
+				content : {
+					text : function(event, api) {
+						var data = event.currentTarget.__data__;
+						return data.desc;
+					},
+					title : function(event, api) {
+						var data = event.currentTarget.__data__;
+						return data.name
+					}
+				},
+				style : {
+					classes : 'qtip-light qtip-shadow qtip-rounded'
+				},
+				position : {
+					my : 'bottom center', // Position my top left...
+					at : 'top center', // at the bottom right of...
+					target : 'mouse' // my target
 				}
 			});
+
 		},
 
 		keyFunction : function(d) {
@@ -249,6 +307,7 @@
 		rectTransform : function(d) {
 			return "translate(" + 0 + "," + self.yScale(d.taskName) + ")";
 		},
+
 		getMaxDate : function() {
 			var tasks = self.trackItems;
 			tasks.sort(function(a, b) {

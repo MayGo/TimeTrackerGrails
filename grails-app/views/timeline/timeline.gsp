@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta name="layout" content="kickstart">
+<meta name="layout" content="timeline">
 <title><g:message code="default.welcome.title" args="[meta(name:'app.name')]" /></title>
 <g:set var="layout_nosecondarymenu" value="${true}" scope="request" />
 <r:require modules="timetracker" />

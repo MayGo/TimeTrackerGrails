@@ -61,8 +61,8 @@ grails.project.dependency.resolution = {
 
 		compile ':cache:1.0.1'
 		compile ":build-test-data:2.0.5"
-		compile(":kickstart-with-bootstrap:0.9.6"){
-			exclude  "resources:1.1.6"
+		compile ':kickstart-with-bootstrap:0.9.6',{
+			exclude  "resources"
 		}
 
 	}
