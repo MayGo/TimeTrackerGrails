@@ -8,4 +8,7 @@ class AppTrackItem extends TrackItem{
 	}
 	static mapping = { title type: 'text' }
 
+	String toString(){
+		return tag?.name+": "+title+ "("+beginDate+" _ "+endDate+")"
+	}
 }

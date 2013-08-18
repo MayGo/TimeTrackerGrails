@@ -40,6 +40,7 @@ grails.project.dependency.resolution = {
 		// runtime 'mysql:mysql-connector-java:5.1.22'
 		compile 'net.java.dev.jna:jna:4.0.0'
 		compile 'net.java.dev.jna:jna-platform:4.0.0'
+		test "org.spockframework:spock-grails-support:0.7-groovy-2.0"
 	}
 
 	plugins {
