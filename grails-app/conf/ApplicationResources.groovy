@@ -1,5 +1,18 @@
 modules = {
 	application { resource url:'js/application.js' }
+	
+	'bootstrap' {
+		dependsOn 'jquery'
+		resource url: [dir: 'bootstrap/js',			file: 'bootstrap.min.js']
+		resource url: [dir: 'bootstrap/css',		file: 'bootstrap.css']
+		resource url: [dir: 'bootstrap/css',		file: 'bootstrap-responsive.css']
+	}
+	'bootstrap_utils' {
+		dependsOn 'jquery, bootstrap, font-awesome'
+		resource url: [dir: 'datepicker/js',			file: 'bootstrap-datepicker.js']
+		resource url: [dir: 'datepicker/css',			file: 'datepicker.css']
+	}
+	
 	timelineD3 {
 		dependsOn 'jquery'
 		//resource url:'js/timelineD3.js'

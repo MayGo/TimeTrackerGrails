@@ -31,8 +31,6 @@ grails.project.dependency.resolution = {
 		mavenRepo "http://repository.codehaus.org/"
 		mavenRepo "http://download.java.net/maven/2/"
 		mavenRepo "http://repository.jboss.com/maven2/"
-		mavenRepo "http://oss.sonatype.org/content/repositories/vaadin-snapshots/"
-		mavenRepo "http://maven.vaadin.com/vaadin-addons/"
 		mavenRepo "http://repo.springsource.org/release/"
 	}
 
@@ -61,9 +59,8 @@ grails.project.dependency.resolution = {
 
 		compile ':cache:1.0.1'
 		compile ":build-test-data:2.0.5"
-		compile ':kickstart-with-bootstrap:0.9.6',{
-			exclude  "resources"
-		}
+		compile ':font-awesome-resources:3.0',{ exclude "resources" }
+		test(":spock:0.7") { exclude "spock-grails-support" }
 
 	}
 }

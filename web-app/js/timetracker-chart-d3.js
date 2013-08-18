@@ -122,8 +122,7 @@
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
 			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
 
-			// uncomment
-			// self.plugin.addTipsy();
+			 self.plugin.addTipsy();
 		},
 		initAxis : function() {
 			console.log("Init axis.");
