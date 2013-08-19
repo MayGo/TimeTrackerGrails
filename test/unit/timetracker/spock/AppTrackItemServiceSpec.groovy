@@ -62,37 +62,30 @@ class AppTrackItemServiceSpec  extends Specification{
 		processed1.beginDate==processed4.beginDate
 	}
 
-	def "End dates should all be unique"(){
-		given:
-		def appTrackItems=[]
-		(1..2).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
-		(1..5).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
-		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+	def "Saved items beginDates and endDates should be unique"(){
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..5).each { i -> service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
+		(1..3).each { i -> service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag3", "Title")) }
 		expect:
-		appTrackItems.size()==10
-
-		appTrackItems.collect{it.endDate}.unique().size==10
+		def appTrackItems=AppTrackItem.list()
+		appTrackItems.size()==3
+		appTrackItems.collect{it.beginDate}.unique().size==3
+		appTrackItems.collect{it.endDate}.unique().size==3
 	}
 	def "There should be no date cap between saved items, even when unique items in between."(){
 		given:
-		def appTrackItems=[]
-		(1..2).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
-		(1..5).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
-		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..5).each { i -> service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
+		(1..3).each { i -> service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag3", "Title")) }
 		expect:
-		appTrackItems.size()==10
-
-		//check if returned items endDate and beginDate matches
+		//check if saved items endDate and beginDate matches
+		def appTrackItems=AppTrackItem.list()
+		appTrackItems.size()==3
 		appTrackItems.eachWithIndex() { obj, i ->
 			if(i>0){
-				appTrackItems[i-1].endDate==obj.beginDate
-			}
-		}
-		
-		//check if saved items endDate and beginDate matches
-		AppTrackItem.list().eachWithIndex() { obj, i ->
-			if(i>0){
-				appTrackItems[i-1].endDate==obj.beginDate
+				assert appTrackItems[i-1].endDate==obj.beginDate
 			}
 		}
 	}
