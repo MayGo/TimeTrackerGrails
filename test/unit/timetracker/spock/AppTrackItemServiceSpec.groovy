@@ -60,8 +60,49 @@ class AppTrackItemServiceSpec  extends Specification{
 		expect:
 		processed1.beginDate==processed3.beginDate
 		processed1.beginDate==processed4.beginDate
-		
-		processed2unique.endDate!=processed3.endDate
 	}
 
+	def "End dates should all be unique"(){
+		given:
+		def appTrackItems=[]
+		(1..2).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..5).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
+		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		expect:
+		appTrackItems.size()==10
+
+		appTrackItems.collect{it.endDate}.unique().size==10
+	}
+	def "There should be no date cap between saved items, even when unique items in between."(){
+		given:
+		def appTrackItems=[]
+		(1..2).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..5).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
+		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		expect:
+		appTrackItems.size()==10
+
+		//check if returned items endDate and beginDate matches
+		appTrackItems.eachWithIndex() { obj, i ->
+			if(i>0){
+				appTrackItems[i-1].endDate==obj.beginDate
+			}
+		}
+		
+		//check if saved items endDate and beginDate matches
+		AppTrackItem.list().eachWithIndex() { obj, i ->
+			if(i>0){
+				appTrackItems[i-1].endDate==obj.beginDate
+			}
+		}
+	}
+	def "Two same items should be merged when unique items in between."(){
+		given:
+		def appTrackItems=[]
+		(1..2).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..5).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
+		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		expect:
+		AppTrackItem.count()==1
+	}
 }

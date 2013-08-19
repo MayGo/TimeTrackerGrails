@@ -11,4 +11,7 @@ class AppTrackItem extends TrackItem{
 	String toString(){
 		return tag?.name+": "+title+ "("+beginDate+" _ "+endDate+")"
 	}
+	boolean hasSameNameAndTitle(compObj){
+		(tag?.name == compObj?.tag?.name && title == compObj?.title)
+	}
 }
