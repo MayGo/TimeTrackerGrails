@@ -117,12 +117,11 @@
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			}).on("click", self.plugin.onClickTrackItem)
+			}).on("click", self.plugin.onClickTrackItem).call(self.plugin.onCreateTrackItem)
 
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
 			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
 
-			self.plugin.addTipsy();
 		},
 		initAxis : function() {
 			console.log("Init axis.");
@@ -259,7 +258,7 @@
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			}).on("click", self.plugin.onClickTrackItem)//.call(self.plugin.addTipsy);
+			}).on("click", self.plugin.onClickTrackItem).call(self.plugin.onCreateTrackItem)
 
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
@@ -272,39 +271,39 @@
 			svg.select(".x").transition().call(self.xAxis);
 			svg.select(".y").transition().call(self.yAxis);
 
-			// TODO: This crashes when redrawig
-			//self.plugin.addTipsy();
 
 		},
-		addTipsy : function(item) {
-			console.log("AddTipsy")
-			console.log(item)
-			var selector = (item) ? item : $('svg .trackItem');
-			selector.qtip({
-				content : {
-					text : function(event, api) {
-						var data = event.currentTarget.__data__;
-						return data.desc;
-					},
-					title : function(event, api) {
-						var data = event.currentTarget.__data__;
-						return data.name
-					}
-				},
-				style : {
-					classes : 'qtip-light qtip-shadow qtip-rounded'
-				},
-				position : {
-					my : 'bottom center', // Position my top left...
-					at : 'top center', // at the bottom right of...
-					target : 'event' // my target
-				}
-			});
-
-		},
-
 		keyFunction : function(d) {
 			return d.id;
+		},
+		/*
+		 * Function to add qTip to every item 
+		 */
+		onCreateTrackItem : function(selection) {
+
+			selection.each(function(d, i) {
+				$(this).qtip({
+					content : {
+						text : function(event, api) {
+							var data = d;
+							return data.desc;
+						},
+						title : function(event, api) {
+							var data = d;
+							return data.name
+						}
+					},
+					style : {
+						classes : 'qtip-light qtip-shadow qtip-rounded'
+					},
+					
+					position : {
+						my : 'bottom center', // Position my top left...
+						at : 'top center', // at the bottom right of...
+						target : 'event'
+					}
+				});
+			});
 		},
 
 		rectTransform : function(d) {
