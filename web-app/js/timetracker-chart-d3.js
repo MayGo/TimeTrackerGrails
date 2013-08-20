@@ -15,7 +15,9 @@
 			left : 70
 		},
 		defaultTimeDomainString : "1hr",
-		onBrushSelection : function(startDate, endDate) {
+		onBrushSelection : function(d) {
+		},
+		onTrackItemChange : function(d) {
 		}
 	};
 	var self = this;
@@ -113,11 +115,11 @@
 			chart.selectAll(".items").data(self.trackItems, self.plugin.keyFunction).enter().append("rect").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
-				return self.xScale(d.startDate);
+				return self.xScale(d.beginDate);
 			}).attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
-				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).on("click", self.plugin.onClickTrackItem).call(self.plugin.onCreateTrackItem)
 
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
@@ -179,7 +181,12 @@
 			var minExtent = self.brush.extent()[0];
 			var maxExtent = self.brush.extent()[1];
 			// Add vars to be added to new item start/enddate
-			self.plugin.options.onBrushSelection(minExtent, maxExtent);
+			var d = {
+				beginDate : minExtent,
+				endDate : maxExtent
+			};
+			self.plugin.options.onBrushSelection(d);
+
 		},
 		/*
 		 * Selection tool to select an item on timeline and to edit its bounds
@@ -195,13 +202,12 @@
 			self.selectionTool = selectionTool;
 			$('html').click(function() {
 				// Hide selection brushes
-				self.selectionTool.x(d3.time.scale().domain([ 0,0 ]).range([ 0, 0 ])).extent([0,0])
-				//self.selectionTool.clear()//.clear() not working as expected
+				self.selectionTool.x(d3.time.scale().domain([ 0, 0 ]).range([ 0, 0 ])).extent([ 0, 0 ])
+				// self.selectionTool.clear()//.clear() not working as expected
 				d3.select("svg").select('.selectionTool').call(self.selectionTool)
-				
+
 			});
 
-			
 		},
 		selectionToolBrushStart : function(p) {
 			// var p = d3.event.target;
@@ -212,10 +218,12 @@
 
 		selectionToolBrushEnd : function() {
 			// change data based on selection brush
-			self.selectedTrackItemData.startDate = self.selectionTool.extent()[0].getTime();
+			self.selectedTrackItemData.beginDate = self.selectionTool.extent()[0].getTime();
 			self.selectedTrackItemData.endDate = self.selectionTool.extent()[1].getTime();
-
+			console.log("selectionToolBrushEnd")
+			console.log(self.selectedTrackItemData)
 			self.plugin.changeTrackItem(self.selectedTrackItemData)
+			self.plugin.options.onTrackItemChange(self.selectedTrackItemData);
 
 		},
 		/*
@@ -225,9 +233,9 @@
 		changeTrackItem : function(data) {
 			var rect = d3.select("svg").select(".chart").selectAll("rect").data([ data ], self.plugin.keyFunction);
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("width", function(d) {
-				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).attr("x", function(d) {
-				return self.xScale(d.startDate);
+				return self.xScale(d.beginDate);
 			});
 		},
 		onClickTrackItem : function(d, i) {
@@ -237,7 +245,7 @@
 			var data = p.data()[0];
 			self.selectedTrackItemData = data;
 			var selectionToolSvg = d3.select(".selectionTool");
-			
+
 			var traslate = p.attr('transform');
 			var x = new Number(p.attr('x'));
 			var y = new Number(p.attr('y'));
@@ -245,11 +253,11 @@
 			// position brush same as trackitem
 			selectionToolSvg.selectAll("rect").attr('height', p.attr('height')).attr("transform", traslate);
 
-			//to make unselecting work correctly
+			// to make unselecting work correctly
 			self.selectionTool.x(self.xScale);
-			
+
 			// Make brush same size as trackitem
-			self.selectionTool.extent([ data.startDate, data.endDate ])
+			self.selectionTool.extent([ data.beginDate, data.endDate ])
 			selectionToolSvg.call(self.selectionTool)
 
 			// remove crosshair outside of item
@@ -258,10 +266,9 @@
 			if (d.taskName === "LogTrackItem") {
 
 			}
-			//prevent event bubbling up, to unselect when clicking outside
+			// prevent event bubbling up, to unselect when clicking outside
 			event.stopPropagation();
-			
-			
+
 		},
 
 		addItem : function(item) {
@@ -281,19 +288,19 @@
 			rect.enter().insert("rect", ":first-child").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
-				return self.xScale(d.startDate);
+				return self.xScale(d.beginDate);
 			}).attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
-				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).on("click", self.plugin.onClickTrackItem).call(self.plugin.onCreateTrackItem)
 
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
-				return (self.xScale(d.endDate) - self.xScale(d.startDate));
+				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).attr("x", function(d) {
-				return self.xScale(d.startDate);
+				return self.xScale(d.beginDate);
 			});
 
 			svg.select(".x").transition().call(self.xAxis);
@@ -349,9 +356,9 @@
 		getMinDate : function() {
 			var tasks = self.trackItems;
 			tasks.sort(function(a, b) {
-				return a.startDate - b.startDate;
+				return a.beginDate - b.beginDate;
 			});
-			var minDate = tasks[0].startDate;
+			var minDate = tasks[0].beginDate;
 			console.log("minDate: " + new Date(minDate));
 			return minDate;
 		},

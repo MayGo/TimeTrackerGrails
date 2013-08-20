@@ -1,4 +1,5 @@
 <%@ page import="timetracker.LogTrackItem"%>
+<g:hiddenField id="id" name="id" value="${logTrackItemInstance?.id}" />
 <g:hiddenField id="beginDate" name="beginDate" value="${logTrackItemInstance?.beginDate}" />
 <g:hiddenField id="endDate" name="endDate" value="${logTrackItemInstance?.endDate}" />
 <div class="control-group fieldcontain ${hasErrors(bean: logTrackItemInstance, field: 'tag', 'error')} required">

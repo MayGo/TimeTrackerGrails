@@ -27,7 +27,7 @@ class TimelineController {
 				name:it.tag.name,
 				desc:(it.hasProperty('title'))?it.title:it.desc,
 				color: it.tag.color.rgb,
-				startDate:it.beginDate.getTime(),
+				beginDate:it.beginDate.getTime(),
 				endDate:it.endDate.getTime()
 			]
 		}

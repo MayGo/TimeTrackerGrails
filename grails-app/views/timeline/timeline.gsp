@@ -12,16 +12,25 @@
 
 <g:javascript>
      jQuery(document).ready(function($) {
-       onBrushSelection = function (startDate, endDate){
-         console.log("onBrushSelection")
-         $('#beginDate').val(startDate.getTime())
-         $('#endDate').val(endDate.getTime())
+       onBrushSelection = function (d){
+         $('#beginDate').val(d.beginDate.getTime())
+         $('#endDate').val(d.endDate.getTime())
+         $('#id').val(d.id)
+       }
+       onTrackItemChange = function (d){
+            $.post($('#addTagForm').attr('action'),d, function(data) {
+            console.log("updated");
+                        console.log(data);
+                      //  var plugin = $("#timetrackerChart").timetrackerD3().data("plugin_timetrackerD3")
+                       
+                    });
        }
        
        $('#timetrackerChart').timetrackerD3({
          trackItems: ${appTrackItemInstanceList},
          trackNames:["AppTrackItem", "LogTrackItem"],
-         onBrushSelection:onBrushSelection
+         onBrushSelection:onBrushSelection,
+         onTrackItemChange:onTrackItemChange
        });
      });
     
@@ -33,7 +42,7 @@ function addTask() {
     var taskName = taskNames[Math.floor(Math.random() * taskNames.length)];
 
     tasks.push({
- "startDate" : d3.time.hour.offset(lastEndDate, Math.ceil(1 * Math.random())),
+ "beginDate" : d3.time.hour.offset(lastEndDate, Math.ceil(1 * Math.random())),
  "endDate" : d3.time.hour.offset(lastEndDate, (Math.ceil(Math.random() * 3)) + 1),
  "taskName" : taskName,
  "status" : taskStatusName
@@ -68,8 +77,8 @@ function removeTask() {
                   else {
                     // submit the form here
                     $.post($('#addTagForm').attr('action'),$("#addTagForm").serialize(), function(data) {
-console.log(data);
-var plugin = $("#timetrackerChart").timetrackerD3().data("plugin_timetrackerD3")
+                        console.log(data);
+                        var plugin = $("#timetrackerChart").timetrackerD3().data("plugin_timetrackerD3")
                         plugin.addItem(data)
                          $('#addTagDialog').modal('hide')  
                     			// $('.top-left').notify({

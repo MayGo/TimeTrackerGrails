@@ -24,13 +24,16 @@ class LogTrackItemController {
 
 
 	def save() {
+		println "saving..."
+		println params
 		try{
 			params.beginDate=new Date(params.long('beginDate'))
 			params.endDate=new Date(params.long('endDate'))
 		}catch(ex){
 			println ex.message
 		}
-		def logTrackItemInstance = new LogTrackItem(params)
+		def logTrackItemInstance = (LogTrackItem.get(params.id))?LogTrackItem.get(params.id):new LogTrackItem()
+		logTrackItemInstance.properties = params
 
 		if (!logTrackItemInstance.save(flush: true)) {
 			println logTrackItemInstance.errors
