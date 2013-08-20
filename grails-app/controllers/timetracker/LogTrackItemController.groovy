@@ -43,7 +43,7 @@ class LogTrackItemController {
 			taskName:logTrackItemInstance.getClass().getSimpleName(),
 			id:logTrackItemInstance.id,
 			name:logTrackItemInstance.tag.name,
-			desc:"",
+			desc:logTrackItemInstance.desc,
 			color: logTrackItemInstance.tag.color.rgb,
 			startDate:logTrackItemInstance.beginDate.getTime(),
 			endDate:logTrackItemInstance.endDate.getTime()

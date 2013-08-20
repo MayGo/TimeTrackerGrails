@@ -122,7 +122,7 @@
 			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
 			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
 
-			 self.plugin.addTipsy();
+			self.plugin.addTipsy();
 		},
 		initAxis : function() {
 			console.log("Init axis.");
@@ -158,11 +158,11 @@
 		},
 
 		brushstart : function(p) {
-			//var p = d3.event.target;
+			// var p = d3.event.target;
 		},
 
 		brushmove : function(p) {
-			//var e = self.brush.extent();
+			// var e = self.brush.extent();
 		},
 
 		brushend : function() {
@@ -240,6 +240,7 @@
 		addItem : function(item) {
 			self.trackItems.push(item);
 			self.plugin.redraw();
+
 		},
 		redraw : function() {
 			console.log("redrawing...")
@@ -258,7 +259,7 @@
 				return self.yScale.rangeBand();
 			}).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.startDate));
-			}).on("click", self.plugin.onClickTrackItem);
+			}).on("click", self.plugin.onClickTrackItem)//.call(self.plugin.addTipsy);
 
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
 				return self.yScale.rangeBand();
@@ -272,11 +273,14 @@
 			svg.select(".y").transition().call(self.yAxis);
 
 			// TODO: This crashes when redrawig
-			// self.plugin.addTipsy();
+			//self.plugin.addTipsy();
 
 		},
-		addTipsy : function() {
-			$('svg .trackItem').qtip({
+		addTipsy : function(item) {
+			console.log("AddTipsy")
+			console.log(item)
+			var selector = (item) ? item : $('svg .trackItem');
+			selector.qtip({
 				content : {
 					text : function(event, api) {
 						var data = event.currentTarget.__data__;
@@ -293,7 +297,7 @@
 				position : {
 					my : 'bottom center', // Position my top left...
 					at : 'top center', // at the bottom right of...
-					target : 'mouse' // my target
+					target : 'event' // my target
 				}
 			});
 
