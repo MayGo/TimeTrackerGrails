@@ -48,6 +48,7 @@
 			this.initZoom();
 			this.initBrush();
 			this.initSelectionTool();
+
 		},
 
 		setTimeDomain : function(timeDomainString) {
@@ -153,7 +154,17 @@
 			brushSvg.selectAll("rect").attr('height', height)
 			brushSvg.select(".background").attr('height', margin.top)
 			// make it available in other functions
-			self.brush = brush
+			self.brush = brush;
+			$('html').click(function() {
+				// Hide selection brushes
+				self.brush.clear()
+				d3.select("svg").select('.brush').call(brush)
+
+			});
+
+			$('.brush').click(function(event) {
+				event.stopPropagation();
+			});
 		},
 
 		brushstart : function(p) {
@@ -181,7 +192,16 @@
 
 			var selectionToolSvg = d3.select("svg").append('g').attr('class', 'selectionTool').attr("transform", "translate(" + margin.left + ", " + margin.top + ")").call(selectionTool)
 			// make it available in other functions
-			self.selectionTool = selectionTool
+			self.selectionTool = selectionTool;
+			$('html').click(function() {
+				// Hide selection brushes
+				self.selectionTool.x(d3.time.scale().domain([ 0,0 ]).range([ 0, 0 ])).extent([0,0])
+				//self.selectionTool.clear()//.clear() not working as expected
+				d3.select("svg").select('.selectionTool').call(self.selectionTool)
+				
+			});
+
+			
 		},
 		selectionToolBrushStart : function(p) {
 			// var p = d3.event.target;
@@ -217,6 +237,7 @@
 			var data = p.data()[0];
 			self.selectedTrackItemData = data;
 			var selectionToolSvg = d3.select(".selectionTool");
+			
 			var traslate = p.attr('transform');
 			var x = new Number(p.attr('x'));
 			var y = new Number(p.attr('y'));
@@ -224,6 +245,9 @@
 			// position brush same as trackitem
 			selectionToolSvg.selectAll("rect").attr('height', p.attr('height')).attr("transform", traslate);
 
+			//to make unselecting work correctly
+			self.selectionTool.x(self.xScale);
+			
 			// Make brush same size as trackitem
 			self.selectionTool.extent([ data.startDate, data.endDate ])
 			selectionToolSvg.call(self.selectionTool)
@@ -234,6 +258,10 @@
 			if (d.taskName === "LogTrackItem") {
 
 			}
+			//prevent event bubbling up, to unselect when clicking outside
+			event.stopPropagation();
+			
+			
 		},
 
 		addItem : function(item) {
@@ -271,13 +299,12 @@
 			svg.select(".x").transition().call(self.xAxis);
 			svg.select(".y").transition().call(self.yAxis);
 
-
 		},
 		keyFunction : function(d) {
 			return d.id;
 		},
 		/*
-		 * Function to add qTip to every item 
+		 * Function to add qTip to every item
 		 */
 		onCreateTrackItem : function(selection) {
 
@@ -296,7 +323,7 @@
 					style : {
 						classes : 'qtip-light qtip-shadow qtip-rounded'
 					},
-					
+
 					position : {
 						my : 'bottom center', // Position my top left...
 						at : 'top center', // at the bottom right of...
