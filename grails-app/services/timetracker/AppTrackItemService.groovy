@@ -13,12 +13,10 @@ class AppTrackItemService {
 		//hold lastAppTrackItem to be assigned in the end
 		AppTrackItem holderAppTrackItem
 		Date now=new Date()
-		//This will be persisted even without save
-		lastAppTrackItem?.endDate=now
-		if(newAppTrackItem){
 
+		if(newAppTrackItem){
 			if(lastAppTrackItem?.hasSameNameAndTitle(newAppTrackItem)){	//last trackItem was same
-				
+				lastAppTrackItem.endDate=now
 				log.debug "Old item -> "+lastAppTrackItem
 				if(lastAppTrackItem.save(flush:true)){
 					lastAppTrackItemSaved=lastAppTrackItem
@@ -27,11 +25,16 @@ class AppTrackItemService {
 				}
 
 			}else{//trackItem different from last one
+				//update last items endDate to get rid of cap between items
+				if(lastAppTrackItem?.id){
+					lastAppTrackItem.endDate=now
+					lastAppTrackItem.save(flush:true)
+				}
 
 				log.debug "New item -> "+newAppTrackItem
 				log.debug "Beforelast item-> "+beforelastAppTrackItem
 				holderAppTrackItem=newAppTrackItem
-
+				
 				//if last item was not saved but before that was item that was saved then use that instead if it was equal to current
 				if(beforelastAppTrackItem?.hasSameNameAndTitle(newAppTrackItem)){
 					log.debug "Beforelast item is the same with new item."
@@ -51,13 +54,18 @@ class AppTrackItemService {
 			lastAppTrackItem=null
 		}
 
-		beforelastAppTrackItem=lastAppTrackItem
+		
+
 		if(holderAppTrackItem)lastAppTrackItem=holderAppTrackItem
 		
-		//return for testing
 		// make a "copy" so item is not attached to session
 		AppTrackItem tempAppTrackItem=new AppTrackItem()
 		tempAppTrackItem.properties=lastAppTrackItem?.properties
+		
+		//asign tempItem because else it would change in session
+		beforelastAppTrackItem=tempAppTrackItem
+		
+		//return for testing
 		return tempAppTrackItem
 	}
 	private void doOnShutdown(){

@@ -75,14 +75,18 @@ class AppTrackItemServiceSpec  extends Specification{
 	}
 	def "There should be no date cap between saved items, even when unique items in between."(){
 		given:
-		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title1")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title2")) }
+		(1..1).each { i -> service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title${i}")) }
+		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag1", "Title3")) }
 		(1..5).each { i -> service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title")) }
 		(1..3).each { i -> service.saveActiveWindow(createAppTrackItem("Tag2", "Title")) }
+		(1..1).each { i -> service.saveActiveWindow(createAppTrackItem("Tag${i}", "Title${i}")) }
 		(1..2).each { i -> service.saveActiveWindow(createAppTrackItem("Tag3", "Title")) }
 		expect:
 		//check if saved items endDate and beginDate matches
 		def appTrackItems=AppTrackItem.list()
-		appTrackItems.size()==3
+		appTrackItems.size()==5
 		appTrackItems.eachWithIndex() { obj, i ->
 			if(i>0){
 				assert appTrackItems[i-1].endDate==obj.beginDate
