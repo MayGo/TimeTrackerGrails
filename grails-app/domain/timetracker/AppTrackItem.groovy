@@ -14,4 +14,23 @@ class AppTrackItem extends TrackItem{
 	boolean hasSameNameAndTitle(compObj){
 		(tag?.name == compObj?.tag?.name && title == compObj?.title)
 	}
+	static namedQueries = {
+		todays {
+			def now = new Date()
+			now.clearTime()
+			gt 'beginDate', now
+		}
+
+		fromDate { day ->
+			day.clearTime()
+			gt 'beginDate',day
+		}
+		fromDateLimitDay { day ->
+			day.clearTime()
+			or{
+				between "beginDate", day, day+1
+				between "endDate", day, day+1
+			}
+		}
+	}
 }

@@ -21,6 +21,34 @@
 		}
 	};
 	var self = this;
+	
+
+	function msToTime(ms) {
+		var secs = Math.floor(ms / 1000);
+		var msleft = ms % 1000;
+		var hours = Math.floor(secs / (60 * 60));
+		var divisor_for_minutes = secs % (60 * 60);
+		var minutes = Math.floor(divisor_for_minutes / 60);
+		var divisor_for_seconds = divisor_for_minutes % 60;
+		var seconds = Math.ceil(divisor_for_seconds);
+		var formattedTime = "";
+		if (hours > 0)
+			formattedTime += hours + " h ";
+
+		if (minutes > 0)
+			formattedTime += minutes + " m ";
+		else if (hours > 0 && minutes == 0)
+			formattedTime += "0 m ";
+
+		if (seconds > 0)
+			formattedTime += seconds + " s ";
+		else if (str != "" && seconds == 0)
+			formattedTime += "0 s ";
+
+		if (formattedTime == "")
+			formattedTime = msleft + " ms";
+		return formattedTime;
+	}
 
 	// The actual plugin constructor
 	function Plugin(element, options) {
@@ -320,7 +348,9 @@
 					content : {
 						text : function(event, api) {
 							var data = d;
-							return data.desc;
+							var duration=d.endDate-d.beginDate;
+							var durationFormatted=msToTime(duration); 
+							return data.desc+"<br/>"+durationFormatted;
 						},
 						title : function(event, api) {
 							var data = d;
@@ -346,6 +376,8 @@
 
 		getMaxDate : function() {
 			var tasks = self.trackItems;
+			if(tasks.length==0)return self.plugin.options.defaultBeginDate + 86400000;
+			
 			tasks.sort(function(a, b) {
 				return a.endDate - b.endDate;
 			});
@@ -355,9 +387,12 @@
 		},
 		getMinDate : function() {
 			var tasks = self.trackItems;
+			if(tasks.length==0)return self.plugin.options.defaultBeginDate;
+			
 			tasks.sort(function(a, b) {
 				return a.beginDate - b.beginDate;
 			});
+			
 			var minDate = tasks[0].beginDate;
 			console.log("minDate: " + new Date(minDate));
 			return minDate;

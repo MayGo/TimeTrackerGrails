@@ -10,7 +10,7 @@ class TimelineController {
 
 
 	def timelineService
-		
+
 	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
 	def index(){
@@ -19,8 +19,12 @@ class TimelineController {
 	def timeline(){
 		//params.max = 10
 		def today = new Date()
-			today.clearTime()
-		def l=timelineService.trackItemsInBetween(today, null)?.collect{
+	
+		def day = (params.day)?new Date(params.day as long):today
+		
+		today.clearTime()
+		day.clearTime()
+		def l=timelineService.trackItemsInBetween(day, day+1)?.collect{
 			[
 				taskName:it.getClass().getSimpleName(),
 				id:it.id,
@@ -32,6 +36,6 @@ class TimelineController {
 			]
 		}
 		//new File("testData.json").write((l as JSON).toString())
-		[appTrackItemInstanceList: l as JSON, timeBegin: l.max{it.begin}.begin, timeEnd: l.max{it.end}.end]
+		[appTrackItemInstanceList: l as JSON, today:today.getTime(), day:day.getTime()]
 	}
 }

@@ -4,7 +4,8 @@
 <html>
 <head>
 <meta name="layout" content="timeline">
-<title><g:message code="default.welcome.title" args="[meta(name:'app.name')]" /></title>
+<title><g:message code="timeline.welcome.title"
+		args="[meta(name:'app.name')]" /></title>
 <g:set var="layout_nosecondarymenu" value="${true}" scope="request" />
 <r:require modules="timetracker" />
 <script src="http://d3js.org/d3.v2.js"></script>
@@ -29,6 +30,7 @@
        $('#timetrackerChart').timetrackerD3({
          trackItems: ${appTrackItemInstanceList},
          trackNames:["AppTrackItem", "LogTrackItem"],
+         defaultBeginDate:${day},
          onBrushSelection:onBrushSelection,
          onTrackItemChange:onTrackItemChange
        });
@@ -62,9 +64,12 @@ function removeTask() {
 
 </head>
 <body>
-  <r:script>
+	<r:script>
           
 			$(document).ready(function() {
+			  $("#index-tabs").ajaxTab();
+			
+			
   			  $('#addTagSubmit').click(function(){
                   if ($('#tag').val()==="") {
                     // invalid
@@ -92,35 +97,60 @@ function removeTask() {
 			});
 			
        </r:script>
-       <div class='notifications top-left'></div>
-  <div id="addTagDialog" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="addTagDialogLabel" aria-hidden="true"
-    style="display: none;">
-    <div class="modal-header">
-      <a href="#" class="close" data-dismiss="modal" aria-hidden="true">×</a>
-      <h3 id="addTagDialogLabel">Add new tag</h3>
-    </div>
-    <div class="modal-body">
-      <form id="addTagForm" method="POST" action="${createLink(controller:'logTrackItem',action: 'save')}" >
-        <g:render template="/logTrackItem/form" />
-      </form>
-    </div>
-    <div class="modal-footer">
-      <a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
-      <a href="#" id="addTagSubmit" class="btn btn-primary">OK</a>
-    </div>
-  </div>
+	<div class='notifications top-left'></div>
 
-  <section id="show-timeline" class="first">
-    <ul id="Menu" class="nav nav-pills">
-      <li><g:link action="delete">
-          <i class="icon-trash"></i>
-          <g:message code="default.remove.label" args="['Tag']" />
-        </g:link></li>
-      <li><a data-toggle="modal" href="#addTagDialog"> <i class="icon-plus"></i> <g:message code="default.new.label" args="['Tag']" />
-      </a></li>
-    </ul>
-    <div id="timetrackerChart"></div>
-  </section>
+	<div id="addTagDialog" class="modal hide fade" tabindex="-1"
+		role="dialog" aria-labelledby="addTagDialogLabel" aria-hidden="true"
+		style="display: none;">
+		<div class="modal-header">
+			<a href="#" class="close" data-dismiss="modal" aria-hidden="true">×</a>
+			<h3 id="addTagDialogLabel">Add new tag</h3>
+		</div>
+		<div class="modal-body">
+			<form id="addTagForm" method="POST"
+				action="${createLink(controller:'logTrackItem',action: 'save')}">
+				<g:render template="/logTrackItem/form" />
+			</form>
+		</div>
+		<div class="modal-footer">
+			<a href="#" class="btn" data-dismiss="modal" aria-hidden="true">Cancel</a>
+			<a href="#" id="addTagSubmit" class="btn btn-primary">OK</a>
+		</div>
+	</div>
+
+	<section id="timeline-time">
+		<a
+			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today-86400000])}"
+			class="btn"><g:message code="timeline.yesterday" /></a> <a
+			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today])}"
+			class="btn ${(day==today)?"disabled":""}"><g:message
+				code="timeline.today" /></a> <a
+			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today+86400000])}"
+			class="btn"><g:message code="timeline.tomorrow" /></a>
+	</section>
+	<section id="timeline-edit">
+		<ul id="Menu" class="nav nav-pills">
+			<li><g:link action="delete">
+					<i class="icon-trash"></i>
+					<g:message code="default.remove.label" args="['Tag']" />
+				</g:link></li>
+			<li><a data-toggle="modal" href="#addTagDialog"> <i
+					class="icon-plus"></i> <g:message code="default.new.label"
+						args="['Tag']" />
+			</a></li>
+		</ul>
+		<div id="timetrackerChart"></div>
+	</section>
+	<div class="container-fluid">
+		<ul id="index-tabs" class="nav nav-tabs">
+			<li><a
+				href="${createLink(controller:'appTrackItem',action: 'list', params: ['day': day])}"
+				data-toggle="tab"><g:message code="timeline.all" args="['Tag']" /></a></li>
+			<li><a
+				href="${createLink(controller:'logTrackItem',action: 'list', params: ['day': day])}"
+				data-toggle="tab"><g:message code="timeline.top" args="['Tag']" /></a></li>
+		</ul>
+	</div>
 
 
 </body>

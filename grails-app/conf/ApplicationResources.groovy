@@ -32,6 +32,9 @@ modules = {
 		resource url:'js/bootstrap-notify.css'
 		resource url:'js/jquery.tipsy.js'
 		resource url:'js/tipsy.css'
+		resource url:'js/bootstrap-tab-ajax.js'
+		resource url:'css/main.css'
+		
 		//resource url:'js/jquery.jgrowl.min.css'
 		//resource url:'js/jquery.jgrowl.map'
 	}

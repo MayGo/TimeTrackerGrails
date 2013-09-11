@@ -11,7 +11,9 @@ grails.project.source.level = 1.6
 grails.project.dependency.resolution = {
 	// inherit Grails' default dependencies
 	inherits("global") { // specify dependency exclusions here; for example, uncomment this to disable ehcache:
-		excludes 'jna' }
+		excludes 'jna'//this does not work.  to do a run-app, remove jna.jar from grails sources<- does not work
+		//and/or comment out  # load ${grails.home}/lib/net.java.dev.jna/jna/jars/jna-3.2.3.jar in groovy-starter.conf
+	}
 	log "warn" // log level of Ivy resolver, either 'error', 'warn', 'info', 'debug' or 'verbose'
 	checksums true // Whether to verify checksums on resolve
 	legacyResolve false // whether to do a secondary resolve on plugin installation, not advised and here for backwards compatibility
@@ -32,6 +34,7 @@ grails.project.dependency.resolution = {
 		mavenRepo "http://download.java.net/maven/2/"
 		mavenRepo "http://repository.jboss.com/maven2/"
 		mavenRepo "http://repo.springsource.org/release/"
+		mavenRepo "http://repo1.maven.org/maven2/"
 	}
 
 	dependencies {
