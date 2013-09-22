@@ -1,9 +1,23 @@
 package timetracker
+import grails.util.Holders
 
 class AppTrackItemService {
 	AppTrackItem lastAppTrackItem
 	AppTrackItem lastAppTrackItemSaved
 	AppTrackItem beforelastAppTrackItem
+	
+	Date lastRunTime=new Date()
+	
+	private void addInactivePeriod(beginDate, endDate){
+		println "adding inactive"
+		AppTrackItem appTrackItem = AppTrackItem.inactiveInstance()
+		appTrackItem.beginDate=beginDate
+		appTrackItem.endDate=endDate
+		
+		if(!appTrackItem.save(flush:true)){
+			log.error appTrackItem.errors
+		}
+	}
 
 	/**
 	 *  We dont save new item, we save when last item was same
@@ -13,9 +27,14 @@ class AppTrackItemService {
 		//hold lastAppTrackItem to be assigned in the end
 		AppTrackItem holderAppTrackItem
 		Date now=new Date()
-
+		// If it has been to long from last run, then computer has been in sleep/hibernate
+		if((now.getTime()-lastRunTime.getTime())>(Holders.config.collectIntervalInMs + Holders.config.addShutdownStatusAfterMs)){
+			addInactivePeriod(lastRunTime, now)
+		}
+		
 		if(newAppTrackItem){
 			if(lastAppTrackItem?.hasSameNameAndTitle(newAppTrackItem)){	//last trackItem was same
+				if(lastAppTrackItem.id)lastAppTrackItem.refresh()
 				lastAppTrackItem.endDate=now
 				log.debug "Old item -> "+lastAppTrackItem
 				if(lastAppTrackItem.save(flush:true)){
@@ -65,6 +84,7 @@ class AppTrackItemService {
 		//asign tempItem because else it would change in session
 		beforelastAppTrackItem=tempAppTrackItem
 		
+		lastRunTime = now
 		//return for testing
 		return tempAppTrackItem
 	}

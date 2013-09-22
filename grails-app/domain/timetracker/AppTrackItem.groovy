@@ -8,6 +8,17 @@ class AppTrackItem extends TrackItem{
 	}
 	static mapping = { title type: 'text' }
 
+	//static private idleAppTrackItem
+	//static private inactiveAppTrackItem
+	
+	static AppTrackItem idleInstance(){
+		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag("Status"), title:"Idle")
+	}
+	
+	static AppTrackItem inactiveInstance(){
+		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag("Status"), title:"Inactive")
+	}
+	
 	String toString(){
 		return tag?.name+": "+title+ "("+beginDate+" _ "+endDate+")"
 	}

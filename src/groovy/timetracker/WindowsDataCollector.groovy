@@ -9,6 +9,7 @@ import com.sun.jna.Native;
 import com.sun.jna.platform.win32.WinDef.HWND;
 import com.sun.jna.platform.win32.User32;
 import com.sun.jna.ptr.IntByReference;
+import com.sun.jna.platform.win32.WinUser.LASTINPUTINFO
 
 public class WindowsDataCollector implements DataCollector{
 	def trackTagService
@@ -31,5 +32,16 @@ public class WindowsDataCollector implements DataCollector{
 
 		AppTrackItem awInfo=new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(appName), title:title)//TODO: move?
 		return awInfo
+	}
+	
+	public long getIdleTimeSinceLastUserInput() {
+		try {
+			LASTINPUTINFO lastInputInfo = new LASTINPUTINFO();
+			User32.INSTANCE.GetLastInputInfo(lastInputInfo);
+			return Kernel32.INSTANCE.GetTickCount() - lastInputInfo.dwTime;
+		} catch (Exception e) {
+			log.error "Error in getIdleTimeSinceLastUserInput"
+			log.error e
+		}
 	}
 }

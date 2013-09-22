@@ -3,6 +3,9 @@
 <!DOCTYPE html>
 <html>
 <head>
+<head>
+    <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans"/>
+
 <meta name="layout" content="timeline">
 <title><g:message code="timeline.welcome.title"
 		args="[meta(name:'app.name')]" /></title>

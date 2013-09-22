@@ -91,4 +91,10 @@ log4j = {
            'net.sf.ehcache.hibernate'
 }
 
-grails.config.defaults.locations = [KickstartResources]
+//grails.config.defaults.locations = [KickstartResources]
+
+collectIntervalInMs=2000
+
+isIdleAfterMs=4000
+
+addShutdownStatusAfterMs=1000// ms + collectIntervalInMs between data collecting times considered as shutdown
