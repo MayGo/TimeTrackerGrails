@@ -29,6 +29,7 @@ class AppTrackItemService {
 		Date now=new Date()
 		// If it has been to long from last run, then computer has been in sleep/hibernate
 		if((now.getTime()-lastRunTime.getTime())>(Holders.config.collectIntervalInMs + Holders.config.addShutdownStatusAfterMs)){
+			lastAppTrackItem = null
 			addInactivePeriod(lastRunTime, now)
 		}
 		
