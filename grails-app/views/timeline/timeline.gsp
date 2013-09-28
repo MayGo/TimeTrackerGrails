@@ -9,7 +9,6 @@
 <meta name="layout" content="timeline">
 <title><g:message code="timeline.welcome.title"
 		args="[meta(name:'app.name')]" /></title>
-<g:set var="layout_nosecondarymenu" value="${true}" scope="request" />
 <r:require modules="timetracker" />
 <script src="http://d3js.org/d3.v2.js"></script>
 
@@ -112,7 +111,7 @@ function removeTask() {
 		<div class="modal-body">
 			<form id="addTagForm" method="POST"
 				action="${createLink(controller:'logTrackItem',action: 'save')}">
-				<g:render template="/logTrackItem/form" />
+				<g:render template="/timeline/logTrackForm" />
 			</form>
 		</div>
 		<div class="modal-footer">

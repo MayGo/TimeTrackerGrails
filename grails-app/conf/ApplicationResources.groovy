@@ -1,6 +1,15 @@
 modules = {
 	application { resource url:'js/application.js' }
 	
+	
+	'angular-scaffolding' {
+		dependsOn 'jquery', 'angular'
+		resource id: 'js', url: [dir: 'js', file: 'grails-default.js']
+		resource id: 'js', url: [dir: 'js', file: 'scaffolding.js']
+		resource id: 'css', url: [dir: 'css', file: 'scaffolding.css']
+	}
+	
+	
 	'bootstrap' {
 		dependsOn 'jquery'
 		resource url: [dir: 'bootstrap/js',			file: 'bootstrap.min.js']

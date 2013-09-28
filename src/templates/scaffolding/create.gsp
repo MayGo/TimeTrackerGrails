@@ -1,36 +1,51 @@
-<%=packageName%>
-<!doctype html>
-<html>
+<% import grails.persistence.Event %>
+<div class="page-header">
+	<h1>Create ${className}</h1>
+</div>
+<alert level="{{message.level}}" text="{{message.text}}"/>
+<form name="form" data-ng-submit="save(item)" class="form-horizontal">
+<%  excludedProps = Event.allEvents.toList() << 'version' << 'dateCreated' << 'lastUpdated'
+	persistentPropNames = domainClass.persistentProperties*.name
+	boolean hasHibernate = pluginManager?.hasGrailsPlugin('hibernate')
+	if (hasHibernate && org.codehaus.groovy.grails.orm.hibernate.cfg.GrailsDomainBinder.getMapping(domainClass)?.identity?.generator == 'assigned') {
+		persistentPropNames << domainClass.identifier.name
+	}
+	props = domainClass.properties.findAll { persistentPropNames.contains(it.name) && !excludedProps.contains(it.name) }
+	Collections.sort(props, comparator.constructors[0].newInstance([domainClass] as Object[]))
+	for (p in props) {
+		if (p.embedded) {
+			def embeddedPropNames = p.component.persistentProperties*.name
+			def embeddedProps = p.component.properties.findAll { embeddedPropNames.contains(it.name) && !excludedProps.contains(it.name) }
+			Collections.sort(embeddedProps, comparator.constructors[0].newInstance([p.component] as Object[]))
+			%><fieldset class="embedded"><legend>${p.naturalName}</legend><%
+			for (ep in p.component.properties) {
+				renderFieldForProperty(ep, p.component, "${p.name}.")
+			}
+			%></fieldset><%
+		} else {
+			renderFieldForProperty(p, domainClass)
+		}
+	}
 
-<head>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-	<meta name="layout" content="kickstart" />
-	<g:set var="entityName" value="\${message(code: '${domainClass.propertyName}.label', default: '${className}')}" />
-	<title><g:message code="default.create.label" args="[entityName]" /></title>
-</head>
-
-<body>
-
-<section id="create-${domainClass.propertyName}" class="first">
-
-	<g:hasErrors bean="\${${propertyName}}">
-	<div class="alert alert-error">
-		<g:renderErrors bean="\${${propertyName}}" as="list" />
-	</div>
-	</g:hasErrors>
-	
-	<g:form action="save" class="form-horizontal" <%= multiPart ? ' enctype="multipart/form-data"' : '' %>>
-		<fieldset class="form">
-			<g:render template="form"/>
-		</fieldset>
-		<div class="form-actions">
-			<g:submitButton name="create" class="btn btn-primary" value="\${message(code: 'default.button.create.label', default: 'Create')}" />
-            <button class="btn" type="reset"><g:message code="default.button.reset.label" default="Reset" /></button>
+	private renderFieldForProperty(p, owningClass, prefix = "") {
+		boolean hasHibernate = pluginManager?.hasGrailsPlugin('hibernate')
+		boolean display = true
+		boolean required = false
+		if (hasHibernate) {
+			cp = owningClass.constrainedProperties[p.name]
+			display = (cp ? cp.display : true)
+			required = (cp ? !(cp.propertyType in [boolean, Boolean]) && !cp.nullable && (cp.propertyType != String || !cp.blank) : false)
+		}
+		if (display) { %>
+	<div class="control-group" data-ng-class="{error: errors.${prefix}${p.name}}">
+		<label class="control-label" for="${prefix}${p.name}">${p.naturalName}</label>
+		<div class="controls">
+			<input type="text" id="${prefix}${p.name}" name="${prefix}${p.name}" required data-ng-model="item.${prefix}${p.name}">
+			<span class="help-inline" data-ng-show="errors.${prefix}${p.name}">{{errors.${prefix}${p.name}}}</span>
 		</div>
-	</g:form>
-	
-</section>
-		
-</body>
-
-</html>
+	</div>
+	<%  }   } %>
+	<div class="form-actions">
+		<button type="submit" class="btn btn-primary" data-ng-disabled="form.\$invalid"><i class="icon-ok"></i> Create</button>
+	</div>
+</form>

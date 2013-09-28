@@ -7,7 +7,7 @@ class UrlMappings {
 			controller	= 'timeline'
 			action		= { 'timeline' }
 		}
-
+		"/template/$contr/$act?"(controller: 'template', action:'serve')
 		"/$controller/$action?/$id?"{ constraints { // apply constraints here
 			} }
 		/* 
