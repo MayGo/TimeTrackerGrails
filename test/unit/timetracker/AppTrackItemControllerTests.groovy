@@ -5,19 +5,14 @@ package timetracker
 import org.junit.*
 import grails.test.mixin.*
 
-/**
- * AppTrackItemControllerTests
- * A unit test class is used to test individual methods or blocks of code without considering the surrounding infrastructure
- */
 @TestFor(AppTrackItemController)
 @Mock(AppTrackItem)
 class AppTrackItemControllerTests {
 
-
     def populateValidParams(params) {
-      assert params != null
-      // TODO: Populate valid properties like...
-      //params["name"] = 'someValidName'
+        assert params != null
+        // TODO: Populate valid properties like...
+        //params["name"] = 'someValidName'
     }
 
     void testIndex() {
@@ -34,9 +29,9 @@ class AppTrackItemControllerTests {
     }
 
     void testCreate() {
-       def model = controller.create()
+        def model = controller.create()
 
-       assert model.appTrackItemInstance != null
+        assert model.appTrackItemInstance != null
     }
 
     void testSave() {
@@ -61,7 +56,6 @@ class AppTrackItemControllerTests {
         assert flash.message != null
         assert response.redirectedUrl == '/appTrackItem/list'
 
-
         populateValidParams(params)
         def appTrackItem = new AppTrackItem(params)
 
@@ -79,7 +73,6 @@ class AppTrackItemControllerTests {
 
         assert flash.message != null
         assert response.redirectedUrl == '/appTrackItem/list'
-
 
         populateValidParams(params)
         def appTrackItem = new AppTrackItem(params)
@@ -100,7 +93,6 @@ class AppTrackItemControllerTests {
         assert response.redirectedUrl == '/appTrackItem/list'
 
         response.reset()
-
 
         populateValidParams(params)
         def appTrackItem = new AppTrackItem(params)

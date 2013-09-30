@@ -1,149 +1,106 @@
 package timetracker
 
 import org.springframework.dao.DataIntegrityViolationException
-
 import grails.converters.JSON
+import static javax.servlet.http.HttpServletResponse.*
 
-/**
- * LogTrackItemController
- * A controller class handles incoming web requests and performs actions such as redirects, rendering views and so on.
- */
 class LogTrackItemController {
 
-	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    static final int SC_UNPROCESSABLE_ENTITY = 422
 
-	def index() {
-		redirect(action: "list", params: params)
-	}
+    static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
-	def list() {
-		params.max = Math.min(params.max ? params.int('max') : 10, 100)
-		[logTrackItemInstanceList: LogTrackItem.list(params), logTrackItemInstanceTotal: LogTrackItem.count()]
-	}
+    def index() { }
 
+    def list() {
+        params.max = Math.min(params.max ? params.int('max') : 10, 100)
+		response.setIntHeader('X-Pagination-Total', LogTrackItem.count())
+		render LogTrackItem.list(params) as JSON
+    }
 
+    def save() {
+        def logTrackItemInstance = new LogTrackItem(request.JSON)
+        def responseJson = [:]
+        if (logTrackItemInstance.save(flush: true)) {
+            response.status = SC_CREATED
+            responseJson.id = logTrackItemInstance.id
+            responseJson.message = message(code: 'default.created.message', args: [message(code: 'logTrackItem.label', default: 'LogTrackItem'), logTrackItemInstance.id])
+        } else {
+            response.status = SC_UNPROCESSABLE_ENTITY
+            responseJson.errors = logTrackItemInstance.errors.fieldErrors.collectEntries {
+                [(it.field): message(error: it)]
+            }
+        }
+        render responseJson as JSON
+    }
 
-	def save() {
-		println "saving..."
-		println params
-		try{
-			params.beginDate=new Date(params.long('beginDate'))
-			params.endDate=new Date(params.long('endDate'))
-		}catch(ex){
-			println ex.message
+    def get() {
+        def logTrackItemInstance = LogTrackItem.get(params.id)
+        if (logTrackItemInstance) {
+			render logTrackItemInstance as JSON
+        } else {
+			notFound params.id
 		}
-		def logTrackItemInstance = (LogTrackItem.get(params.id))?LogTrackItem.get(params.id):new LogTrackItem()
-		logTrackItemInstance.properties = params
+    }
 
-		if (!logTrackItemInstance.save(flush: true)) {
-			println logTrackItemInstance.errors
-			render(status: 409, text: 'Failed to save Log trackitem: ${b.id}')
-			return
-		}
+    def update() {
+        def logTrackItemInstance = LogTrackItem.get(params.id)
+        if (!logTrackItemInstance) {
+            notFound params.id
+            return
+        }
 
+        def responseJson = [:]
 
-		def json=[
-			taskName:logTrackItemInstance.getClass().getSimpleName(),
-			id:logTrackItemInstance.id,
-			name:logTrackItemInstance.tag.name,
-			desc:logTrackItemInstance.desc,
-			color: logTrackItemInstance.tag.color.rgb,
-			startDate:logTrackItemInstance.beginDate.getTime(),
-			endDate:logTrackItemInstance.endDate.getTime()
-		] as JSON
-		render json
-	}
-
-	def show() {
-		def logTrackItemInstance = LogTrackItem.get(params.id)
-		if (!logTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
-
-		[logTrackItemInstance: logTrackItemInstance]
-	}
-
-	def edit() {
-		def logTrackItemInstance = LogTrackItem.get(params.id)
-		if (!logTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
-
-		[logTrackItemInstance: logTrackItemInstance]
-	}
-
-	def update() {
-		def logTrackItemInstance = LogTrackItem.get(params.id)
-		if (!logTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
-
-		if (params.version) {
-			def version = params.version.toLong()
-			if (logTrackItemInstance.version > version) {
-				logTrackItemInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-						[
-							message(code: 'logTrackItem.label', default: 'LogTrackItem')] as Object[],
-						"Another user has updated this LogTrackItem while you were editing")
-				render(view: "edit", model: [logTrackItemInstance: logTrackItemInstance])
+        if (request.JSON.version != null) {
+            if (logTrackItemInstance.version > request.JSON.version) {
+				response.status = SC_CONFLICT
+				responseJson.message = message(code: 'default.optimistic.locking.failure',
+						args: [message(code: 'logTrackItem.label', default: 'LogTrackItem')],
+						default: 'Another user has updated this LogTrackItem while you were editing')
+				cache false
+				render responseJson as JSON
 				return
-			}
-		}
+            }
+        }
 
-		logTrackItemInstance.properties = params
+        logTrackItemInstance.properties = request.JSON
 
-		if (!logTrackItemInstance.save(flush: true)) {
-			render(view: "edit", model: [logTrackItemInstance: logTrackItemInstance])
-			return
-		}
+        if (logTrackItemInstance.save(flush: true)) {
+            response.status = SC_OK
+            responseJson.id = logTrackItemInstance.id
+            responseJson.message = message(code: 'default.updated.message', args: [message(code: 'logTrackItem.label', default: 'LogTrackItem'), logTrackItemInstance.id])
+        } else {
+            response.status = SC_UNPROCESSABLE_ENTITY
+            responseJson.errors = logTrackItemInstance.errors.fieldErrors.collectEntries {
+                [(it.field): message(error: it)]
+            }
+        }
 
-		flash.message = message(code: 'default.updated.message', args: [
-			message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-			logTrackItemInstance.id
-		])
-		redirect(action: "show", id: logTrackItemInstance.id)
-	}
+        render responseJson as JSON
+    }
 
-	def delete() {
-		def logTrackItemInstance = LogTrackItem.get(params.id)
-		if (!logTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
+    def delete() {
+        def logTrackItemInstance = LogTrackItem.get(params.id)
+        if (!logTrackItemInstance) {
+            notFound params.id
+            return
+        }
 
-		try {
-			logTrackItemInstance.delete(flush: true)
-			flash.message = message(code: 'default.deleted.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-		}
-		catch (DataIntegrityViolationException e) {
-			flash.message = message(code: 'default.not.deleted.message', args: [
-				message(code: 'logTrackItem.label', default: 'LogTrackItem'),
-				params.id
-			])
-			redirect(action: "show", id: params.id)
-		}
-	}
+        def responseJson = [:]
+        try {
+            logTrackItemInstance.delete(flush: true)
+            responseJson.message = message(code: 'default.deleted.message', args: [message(code: 'logTrackItem.label', default: 'LogTrackItem'), params.id])
+        } catch (DataIntegrityViolationException e) {
+            response.status = SC_CONFLICT
+            responseJson.message = message(code: 'default.not.deleted.message', args: [message(code: 'logTrackItem.label', default: 'LogTrackItem'), params.id])
+        }
+        render responseJson as JSON
+    }
+
+    private void notFound(id) {
+        response.status = SC_NOT_FOUND
+        def responseJson = [message: message(code: 'default.not.found.message', args: [message(code: 'logTrackItem.label', default: 'LogTrackItem'), params.id])]
+        render responseJson as JSON
+    }
 }

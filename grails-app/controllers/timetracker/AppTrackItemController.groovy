@@ -1,136 +1,106 @@
 package timetracker
 
 import org.springframework.dao.DataIntegrityViolationException
+import grails.converters.JSON
+import static javax.servlet.http.HttpServletResponse.*
 
-/**
- * AppTrackItemController
- * A controller class handles incoming web requests and performs actions such as redirects, rendering views and so on.
- */
 class AppTrackItemController {
 
-	static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
+    static final int SC_UNPROCESSABLE_ENTITY = 422
 
-	def index() {
-		redirect(action: "list", params: params)
-	}
+    static allowedMethods = [save: "POST", update: "POST", delete: "POST"]
 
-	def list() {
-		params.max = Math.min(params.max ? params.int('max') : 10, 100)
-		params.sort='beginDate'
-		params.order='desc'
-		def today = new Date()
-		def day = (params.day)?new Date(params.day as long):today
-		[appTrackItemInstanceList: AppTrackItem.fromDateLimitDay(day).list(params), appTrackItemInstanceTotal: AppTrackItem.fromDateLimitDay(day).count()]
-	}
+    def index() { }
 
-	def create() {
-		[appTrackItemInstance: new AppTrackItem(params)]
-	}
+    def list() {
+        params.max = Math.min(params.max ? params.int('max') : 10, 100)
+		response.setIntHeader('X-Pagination-Total', AppTrackItem.count())
+		render AppTrackItem.list(params) as JSON
+    }
 
-	def save() {
-		def appTrackItemInstance = new AppTrackItem(params)
-		if (!appTrackItemInstance.save(flush: true)) {
-			render(view: "create", model: [appTrackItemInstance: appTrackItemInstance])
-			return
+    def save() {
+        def appTrackItemInstance = new AppTrackItem(request.JSON)
+        def responseJson = [:]
+        if (appTrackItemInstance.save(flush: true)) {
+            response.status = SC_CREATED
+            responseJson.id = appTrackItemInstance.id
+            responseJson.message = message(code: 'default.created.message', args: [message(code: 'appTrackItem.label', default: 'AppTrackItem'), appTrackItemInstance.id])
+        } else {
+            response.status = SC_UNPROCESSABLE_ENTITY
+            responseJson.errors = appTrackItemInstance.errors.fieldErrors.collectEntries {
+                [(it.field): message(error: it)]
+            }
+        }
+        render responseJson as JSON
+    }
+
+    def get() {
+        def appTrackItemInstance = AppTrackItem.get(params.id)
+        if (appTrackItemInstance) {
+			render appTrackItemInstance as JSON
+        } else {
+			notFound params.id
 		}
+    }
 
-		flash.message = message(code: 'default.created.message', args: [
-			message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-			appTrackItemInstance.id
-		])
-		redirect(action: "show", id: appTrackItemInstance.id)
-	}
+    def update() {
+        def appTrackItemInstance = AppTrackItem.get(params.id)
+        if (!appTrackItemInstance) {
+            notFound params.id
+            return
+        }
 
-	def show() {
-		def appTrackItemInstance = AppTrackItem.get(params.id)
-		if (!appTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
+        def responseJson = [:]
 
-		[appTrackItemInstance: appTrackItemInstance]
-	}
-
-	def edit() {
-		def appTrackItemInstance = AppTrackItem.get(params.id)
-		if (!appTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
-
-		[appTrackItemInstance: appTrackItemInstance]
-	}
-
-	def update() {
-		def appTrackItemInstance = AppTrackItem.get(params.id)
-		if (!appTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
-
-		if (params.version) {
-			def version = params.version.toLong()
-			if (appTrackItemInstance.version > version) {
-				appTrackItemInstance.errors.rejectValue("version", "default.optimistic.locking.failure",
-						[
-							message(code: 'appTrackItem.label', default: 'AppTrackItem')] as Object[],
-						"Another user has updated this AppTrackItem while you were editing")
-				render(view: "edit", model: [appTrackItemInstance: appTrackItemInstance])
+        if (request.JSON.version != null) {
+            if (appTrackItemInstance.version > request.JSON.version) {
+				response.status = SC_CONFLICT
+				responseJson.message = message(code: 'default.optimistic.locking.failure',
+						args: [message(code: 'appTrackItem.label', default: 'AppTrackItem')],
+						default: 'Another user has updated this AppTrackItem while you were editing')
+				cache false
+				render responseJson as JSON
 				return
-			}
-		}
+            }
+        }
 
-		appTrackItemInstance.properties = params
+        appTrackItemInstance.properties = request.JSON
 
-		if (!appTrackItemInstance.save(flush: true)) {
-			render(view: "edit", model: [appTrackItemInstance: appTrackItemInstance])
-			return
-		}
+        if (appTrackItemInstance.save(flush: true)) {
+            response.status = SC_OK
+            responseJson.id = appTrackItemInstance.id
+            responseJson.message = message(code: 'default.updated.message', args: [message(code: 'appTrackItem.label', default: 'AppTrackItem'), appTrackItemInstance.id])
+        } else {
+            response.status = SC_UNPROCESSABLE_ENTITY
+            responseJson.errors = appTrackItemInstance.errors.fieldErrors.collectEntries {
+                [(it.field): message(error: it)]
+            }
+        }
 
-		flash.message = message(code: 'default.updated.message', args: [
-			message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-			appTrackItemInstance.id
-		])
-		redirect(action: "show", id: appTrackItemInstance.id)
-	}
+        render responseJson as JSON
+    }
 
-	def delete() {
-		def appTrackItemInstance = AppTrackItem.get(params.id)
-		if (!appTrackItemInstance) {
-			flash.message = message(code: 'default.not.found.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-			return
-		}
+    def delete() {
+        def appTrackItemInstance = AppTrackItem.get(params.id)
+        if (!appTrackItemInstance) {
+            notFound params.id
+            return
+        }
 
-		try {
-			appTrackItemInstance.delete(flush: true)
-			flash.message = message(code: 'default.deleted.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "list")
-		}
-		catch (DataIntegrityViolationException e) {
-			flash.message = message(code: 'default.not.deleted.message', args: [
-				message(code: 'appTrackItem.label', default: 'AppTrackItem'),
-				params.id
-			])
-			redirect(action: "show", id: params.id)
-		}
-	}
+        def responseJson = [:]
+        try {
+            appTrackItemInstance.delete(flush: true)
+            responseJson.message = message(code: 'default.deleted.message', args: [message(code: 'appTrackItem.label', default: 'AppTrackItem'), params.id])
+        } catch (DataIntegrityViolationException e) {
+            response.status = SC_CONFLICT
+            responseJson.message = message(code: 'default.not.deleted.message', args: [message(code: 'appTrackItem.label', default: 'AppTrackItem'), params.id])
+        }
+        render responseJson as JSON
+    }
+
+    private void notFound(id) {
+        response.status = SC_NOT_FOUND
+        def responseJson = [message: message(code: 'default.not.found.message', args: [message(code: 'appTrackItem.label', default: 'AppTrackItem'), params.id])]
+        render responseJson as JSON
+    }
 }

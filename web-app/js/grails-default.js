@@ -4,8 +4,7 @@
  */
 angular.module('grailsService', ['ngResource']).factory('Grails', function($resource) {
 	var baseUrl = $('body').data('base-url');
-
-	return $resource(baseUrl + ':action/:id', {id: '@id'}, {
+	return $resource(baseUrl + ':contr/:action/:id', {id: '@id'}, {
 		list: {method: 'GET', params: {action: 'list'}, isArray: true},
 		get: {method: 'GET', params: {action: 'get'}},
 		save: {method: 'POST', params: {action: 'save'}},

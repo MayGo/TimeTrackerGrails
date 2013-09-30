@@ -8,7 +8,7 @@ class BootStrap {
 		//printClassPath this.class.classLoader
 		
 		println "Creating tags"
-		TrackTagService.getOrCreateTrackTag("Status", "FF2424")
+		TrackTagService.getOrCreateTrackTag("Status", "#FF2424")
 	}
 	def printClassPath(classLoader) {
 		println "$classLoader"

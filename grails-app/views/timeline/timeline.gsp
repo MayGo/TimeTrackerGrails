@@ -6,7 +6,7 @@
 <head>
     <link rel="stylesheet" type="text/css" href="http://fonts.googleapis.com/css?family=Open+Sans"/>
 
-<meta name="layout" content="timeline">
+<meta name="layout" content="ng-app">
 <title><g:message code="timeline.welcome.title"
 		args="[meta(name:'app.name')]" /></title>
 <r:require modules="timetracker" />
@@ -65,7 +65,7 @@ function removeTask() {
  </g:javascript>
 
 </head>
-<body>
+<body  data-ng-app="scaffolding" data-base-url="${createLink(uri: '/')}">
 	<r:script>
           
 			$(document).ready(function() {
@@ -130,6 +130,8 @@ function removeTask() {
 			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today+86400000])}"
 			class="btn"><g:message code="timeline.tomorrow" /></a>
 	</section>
+  
+  
 	<section id="timeline-edit">
 		<ul id="Menu" class="nav nav-pills">
 			<li><g:link action="delete">
@@ -143,17 +145,25 @@ function removeTask() {
 		</ul>
 		<div id="timetrackerChart"></div>
 	</section>
-	<div class="container-fluid">
-		<ul id="index-tabs" class="nav nav-tabs">
-			<li><a
-				href="${createLink(controller:'appTrackItem',action: 'list', params: ['day': day])}"
-				data-toggle="tab"><g:message code="timeline.all" args="['Tag']" /></a></li>
-			<li><a
-				href="${createLink(controller:'logTrackItem',action: 'list', params: ['day': day])}"
-				data-toggle="tab"><g:message code="timeline.top" args="['Tag']" /></a></li>
-		</ul>
-	</div>
+  
 
+    <div ng-controller="TabsDemoCtrl">
+      <tabset>
+        <tab select="renderTmpl('/appTrackItem/list')">
+          <tab-heading>
+            <i class="icon-justify"></i> <g:message code="timeline.all" args="['Tag']" />
+          </tab-heading>
+        </tab>
+        <tab select="renderTmpl('/logTrackItem/list')">
+          <tab-heading>
+            <i class="icon-message-full"></i> <g:message code="timeline.top" args="['Tag']" />
+          </tab-heading>
+        
+        </div>
+        </tab>
+      </tabset>
+      <div class="content" role="main" data-ng-view>
+    </div>
 
-</body>
+  </body>
 </html>

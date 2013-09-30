@@ -64,9 +64,6 @@ grails.project.dependency.resolution = {
 		compile ':cache:1.0.1'
 		compile ":build-test-data:2.0.5"
 		compile ':font-awesome-resources:3.0',{ exclude "resources" }
-		//compile ":grails-angular-template:0.1.2"
-		//compile ":angular-scaffolding:1.0-SNAPSHOT"
-		compile ":angularjs-resources:1.0.8"
 		test(":spock:0.7") { exclude "spock-grails-support" }
 
 	}

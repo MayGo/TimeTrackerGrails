@@ -8,9 +8,9 @@ class TemplateController {
 
 	def serve(){
 		println "................."
-		println $contr
-		println $act
-		render(template:"/$contr/$act")
+		println params.contr
+		println params.act
+		render(template:"/${params.contr}/${params.act}")
 	}
 
 }
