@@ -122,12 +122,12 @@ function removeTask() {
 
 	<section id="timeline-time">
 		<a
-			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today-86400000])}"
+			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': day-86400000])}"
 			class="btn"><g:message code="timeline.yesterday" /></a> <a
 			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today])}"
 			class="btn ${(day==today)?"disabled":""}"><g:message
 				code="timeline.today" /></a> <a
-			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': today+86400000])}"
+			href="${createLink(controller:'timeline',action: 'timeline', params: ['day': day+86400000])}"
 			class="btn"><g:message code="timeline.tomorrow" /></a>
 	</section>
   
