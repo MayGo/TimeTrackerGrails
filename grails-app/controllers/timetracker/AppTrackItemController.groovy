@@ -14,8 +14,13 @@ class AppTrackItemController {
 
     def list() {
         params.max = Math.min(params.max ? params.int('max') : 10, 100)
-		response.setIntHeader('X-Pagination-Total', AppTrackItem.count())
-		render AppTrackItem.list(params) as JSON
+		params.sort = params.sort?:'beginDate'
+		params.order = params.order?:'desc'
+		def today = new Date()
+		def day = (params.day)?new Date(params.day as long):today
+		
+		response.setIntHeader('X-Pagination-Total', AppTrackItem.fromDateLimitDay(day).count())
+		render AppTrackItem.fromDateLimitDay(day).list(params) as JSON
     }
 
     def save() {

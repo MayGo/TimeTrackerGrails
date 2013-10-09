@@ -9,9 +9,9 @@
 		trackItems : [],
 		trackName : [],
 		margin : {
-			top : 10,
-			right : 0,
-			bottom : 10,
+			top : 20,
+			right : 40,
+			bottom : 20,
 			left : 70
 		},
 		defaultTimeDomainString : "1hr",
@@ -62,14 +62,9 @@
 		self.trackItems = options.trackItems;
 		self.trackNames = options.trackNames;
 
-		self.miniHeight = 30;
-		self.height = $(this.element).height();
-		self.width = $(this.element).width();
+		self.height = $(this.element).height() - this.options.margin.top - this.options.margin.bottom - 5;
+		self.width = $(this.element).width() - this.options.margin.right - this.options.margin.left - 5;
 
-		self.mainHeight = self.height-self.miniHeight-this.options.margin.top-this.options.margin.bottom;
-		self.mainWidth = self.width-self.miniHeight-this.options.margin.left-this.options.margin.right;
-		
-		
 		this.init();
 	}
 
@@ -134,74 +129,18 @@
 			self.plugin.initAxis();
 			this.redraw();
 		},
-		
 		initSvg : function() {
 			var margin = this.options.margin;
 			var height = self.height;
 			var width = self.width;
-			var miniHeight = self.miniHeight
 
-			var chart = d3.select(self.plugin.element).append("svg").attr("class", "chart").
-							attr("width", width).
-							attr("height", height);
-			
-			var mainChart = chart.append("g").attr("class", "mainChart").
-			attr("transform", "translate(" + margin.left + ", 0)")
-			.attr("width", self.mainWidth)
-			.attr("height", self.mainHeight)
-			
-			
-			var miniChart = chart.append("g")
-			.attr("transform", "translate(" + margin.left + ", " +  (self.mainHeight) + ")")
-			.attr("class", "miniChart");
-			
-		
-			//miniChart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
-		//	miniChart.append("g").attr("class", "y axis").transition().call(self.yAxis);
-			
-			
-
-			var rect = miniChart.selectAll("rect").data(self.trackItems, self.plugin.keyFunction);
-
-			rect.enter().insert("rect", ":first-child").attr('class', 'miniItems').
-				attr("rx", 5).
-				attr("ry", 5).
-				style("fill", function(d) {
-					return d.color;
-				}).attr("y", 0)
-
-			rect.transition().attr("transform", self.plugin.rectTransform).attr("height", function(d) {
-				return self.yScaleMini.rangeBand();
-			}).attr("width", function(d) {
-				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
-			}).attr("x", function(d) {
-				return self.xScale(d.beginDate);
-			});
-			var miniChartBrush = d3.svg.brush().
-						x(self.xScale).
-						on("brush", this.redraw);
-			//.on("brushstart", self.plugin.brushstart).on("brush", self.plugin.brushmove).on("brushend", self.plugin.brushend);
-			
-			var miniChartBrushSvg = miniChart.append('g').
-						attr('class', 'miniBrush').
-						call(miniChartBrush).
-						selectAll("rect").attr('height', miniHeight)//.
-						//select(".background").attr('height', margin.top)
-			self.miniChartBrush=miniChartBrush
-			//svg.select(".x").transition().call(self.xAxis);
-			//svg.select(".y").transition().call(self.yAxis);
-			
-			
-			
-			
-			
-			
+			var chart = d3.select(self.plugin.element).append("svg").attr("width", width + margin.left + margin.right).attr("height", height + margin.top + margin.bottom).append("g").attr("class", "chart").attr("transform", "translate(" + margin.left + ", " + margin.top + ")");
 			/*
 			 * d3.select("svg").on("click", function(d, i) { // set var to
 			 * enable brush selecting //alert(2); self.plugin.toggleBrush(true);
 			 * });
 			 */
-			mainChart.selectAll(".trackItems").data(self.trackItems, self.plugin.keyFunction).enter().append("rect").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
+			chart.selectAll(".items").data(self.trackItems, self.plugin.keyFunction).enter().append("rect").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
 				return self.xScale(d.beginDate);
@@ -211,33 +150,25 @@
 				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).on("click", self.plugin.onClickTrackItem).call(self.plugin.onCreateTrackItem)
 
-			mainChart.append("g")
-				.attr("class", "x axis")
-				.attr("transform", "translate(0, " + self.mainHeight + ")")
-				.transition()
-				.call(self.xAxis);
-			mainChart.append("g")
-				.attr("class", "y axis")
-				.transition()
-				.call(self.yAxis);
+			chart.append("g").attr("class", "x axis").attr("transform", "translate(0, " + (height - margin.top - margin.bottom) + ")").transition().call(self.xAxis);
+			chart.append("g").attr("class", "y axis").transition().call(self.yAxis);
 
 		},
 		initAxis : function() {
 			console.log("Init axis.");
 			var margin = this.options.margin;
-			//var height = self.height;
-			//var width = self.width;
-			self.xScale = d3.time.scale().domain([ self.timeDomainStart, self.timeDomainEnd ]).range([ 0, self.mainWidth ]).clamp(true);
-			self.yScale = d3.scale.ordinal().domain(self.trackNames).rangeRoundBands([ 0, self.mainHeight], .1);
-			self.yScaleMini = d3.scale.ordinal().domain(self.trackNames).rangeRoundBands([ 0, self.miniHeight ], .1);
-			
+			var height = self.height;
+			var width = self.width;
+			self.xScale = d3.time.scale().domain([ self.timeDomainStart, self.timeDomainEnd ]).range([ 0, width ]).clamp(true);
+			self.yScale = d3.scale.ordinal().domain(self.trackNames).rangeRoundBands([ 0, height - margin.top - margin.bottom ], .1);
+
 			self.xAxis = d3.svg.axis().scale(self.xScale).orient("bottom").tickFormat(d3.time.format(self.tickFormat)).tickSubdivide(true).tickSize(8).tickPadding(8);
 			self.yAxis = d3.svg.axis().scale(self.yScale).orient("left").tickSize(0);
 		},
 		initZoom : function() {
 			console.log("init zoom");
-			var mainChart = d3.select(".mainChart");
-			mainChart.call(d3.behavior.zoom().x(self.xScale).on("zoom", this.redraw));
+			var chart = d3.select(".chart");
+			chart.call(d3.behavior.zoom().x(self.xScale).on("zoom", this.redraw));
 		},
 		initBrush : function() {
 
@@ -328,7 +259,7 @@
 		 * beginDate/endDate
 		 */
 		changeTrackItem : function(data) {
-			var rect = d3.select("svg").select(".mainChart").selectAll("rect").data([ data ], self.plugin.keyFunction);
+			var rect = d3.select("svg").select(".chart").selectAll("rect").data([ data ], self.plugin.keyFunction);
 			rect.transition().attr("transform", self.plugin.rectTransform).attr("width", function(d) {
 				return (self.xScale(d.endDate) - self.xScale(d.beginDate));
 			}).attr("x", function(d) {
@@ -376,23 +307,11 @@
 		redraw : function() {
 			console.log("redrawing...")
 			var tasks = self.trackItems;
-			
-			
-			var minExtent = miniChartBrush.extent()[0],
-			maxExtent = miniChartBrush.extent()[1];
-			
-			if(minExtent && maxExtent){
-				self.timeDomainStart = minExtent;
-				self.timeDomainEnd = maxExtent;
-				console.log(minExtent)
-				console.log(maxExtent)
-				self.plugin.initAxis();
-			}
 			// self.plugin.initAxis();
 
 			var svg = d3.select("svg");
 
-			var rect = svg.select(".mainChart").selectAll("rect").data(tasks, self.plugin.keyFunction);
+			var rect = svg.select(".chart").selectAll("rect").data(tasks, self.plugin.keyFunction);
 
 			rect.enter().insert("rect", ":first-child").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
 				return d.color;
