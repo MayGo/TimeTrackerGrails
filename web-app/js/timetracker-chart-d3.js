@@ -63,6 +63,7 @@
 		self.trackNames = options.trackNames;
 
 		self.miniHeight = 30;
+		self.axisHeight = 30;
 		self.height = $(this.element).height();
 		self.width = $(this.element).width();
 
@@ -152,7 +153,7 @@
 			
 			
 			var miniChart = chart.append("g")
-			.attr("transform", "translate(" + margin.left + ", " +  (self.mainHeight) + ")")
+			.attr("transform", "translate(" + margin.left + ", " +  (self.mainHeight + self.axisHeight) + ")")
 			.attr("class", "miniChart");
 			
 		
