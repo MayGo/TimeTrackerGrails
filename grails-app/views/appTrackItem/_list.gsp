@@ -1,4 +1,8 @@
-<alert type="message.level" >{{message.text}}</alert>
+
+<div class="page-header">
+	<h1>AppTrackItem List</h1>
+</div>
+<alert level="{{message.level}}" text="{{message.text}}"/>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>

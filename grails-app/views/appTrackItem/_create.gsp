@@ -2,7 +2,7 @@
 <div class="page-header">
 	<h1>Create AppTrackItem</h1>
 </div>
-<alert type="message.level">{{message.text}}</alert>
+<alert level="{{message.level}}" text="{{message.text}}"/>
 <form name="form" data-ng-submit="save(item)" class="form-horizontal">
 
 	<div class="control-group" data-ng-class="{error: errors.beginDate}">

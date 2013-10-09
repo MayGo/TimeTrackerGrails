@@ -2,7 +2,7 @@
 <div class="page-header">
 	<h1>${className} List</h1>
 </div>
-<alert type="message.level">{{message.text}}</alert>
+<alert level="{{message.level}}" text="{{message.text}}"/>
 <table class="table table-bordered table-striped">
     <thead>
         <tr>
