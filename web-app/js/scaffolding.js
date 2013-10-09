@@ -6,8 +6,11 @@ angular.module('flashService', []).factory('Flash', function() {
     var flash = {};
 
     flash.getMessage = function() {
+    	
         var value = this.message;
         this.message = undefined;
+        console.log("getMessage")
+        console.log(value)
         return value;
     };
 
@@ -15,7 +18,9 @@ angular.module('flashService', []).factory('Flash', function() {
         this.message = {level: 'error', text: text};
     };
     flash.success = function(text) {
+    	console.log("success...")
         this.message = {level: 'success', text: text};
+    	console.log( this.message)
     };
     flash.info = function(text) {
         this.message = {level: 'info', text: text};
@@ -37,22 +42,16 @@ scaffoldingModule.config(function($routeProvider) {
         console.log(baseUrl);
         $routeProvider.
             when('/create', {templateUrl: baseUrl + '/create', controller: CreateCtrl}).
-            when('/:contr/create', {templateUrl: function(params){ return params.contr+'/create' }, controller: CreateCtrl}).
+            when('/:contr/create', { templateUrl: function(params){ return baseUrl+'/'+params.contr+'/create' }, controller: CreateCtrl}).
            
             when('/edit/:id', {templateUrl: baseUrl + '/edit', controller: EditCtrl}).
-            when('/:contr/edit/:id', {templateUrl: function(params){ return params.contr+'/edit' }, controller: EditCtrl}).
+            when('/:contr/edit/:id', { templateUrl: function(params){ return baseUrl+'/'+params.contr+'/edit' }, controller: EditCtrl}).
             
             when('/list', {templateUrl: baseUrl + '/list', controller: ListCtrl}).
-            when('/:contr/list', {
-            	templateUrl:
-            		//baseUrl +'/logTrackItem/list',
-            		function(params){ return baseUrl+'/'+params.contr+'/list' },
-            		controller: ListCtrl
-            	}
-            ).
+            when('/:contr/list', { templateUrl: function(params){ return baseUrl+'/'+params.contr+'/list' }, controller: ListCtrl } ).
             
             when('/show/:id', {templateUrl: baseUrl + '/show', controller: ShowCtrl}).
-            when('/:contr/show/:id', {templateUrl: function(params){ return params.contr+'/show' }, controller: ShowCtrl}).
+            when('/:contr/show/:id', { templateUrl: function(params){ return baseUrl+'/'+params.contr+'/show' }, controller: ShowCtrl}).
             
             otherwise({redirectTo: '/list'});
     }
@@ -61,20 +60,20 @@ scaffoldingModule.config(function($routeProvider) {
 /**
  * A directive for including an alert message in the page.
  */
-scaffoldingModule.directive('alert', function() {
-	var baseUrl = $('body').data('common-template-url');
-	return {
-        restrict: 'E', // can only be used as an element
-        transclude: false, // the element should not contain any content so
-							// there's no need to transclude
-        scope: {
-			level: '@level',
-			text: '@text'
-        },
-        templateUrl: baseUrl + '/alert.html',
-        replace: true
-    }
-});
+//scaffoldingModule.directive('alert', function() {
+//	var baseUrl = $('body').data('common-template-url');
+//	return {
+//        restrict: 'E', // can only be used as an element
+//        transclude: false, // the element should not contain any content so
+//							// there's no need to transclude
+//        scope: {
+//			level: '@level',
+//			text: '@text'
+//        },
+//        templateUrl: baseUrl + '/alert.html',
+//        replace: true
+//    }
+//});
 
 /**
  * A directive for including a standard pagination block in the page.
@@ -166,25 +165,33 @@ function ListCtrl($scope, $routeParams, $location, Grails, Flash) {
         	}
         });
         $scope.message = Flash.getMessage();
+        $scope.message = {level:"info", text:"You have made to here!"}
+        
     }, errorHandler.curry($scope, $location, Flash));
 
     $scope.show = function(item) {
-    	console.log("show")
-        $location.path('/show/' + item.id);
+    	console.log("show"+$routeParams.contr)
+        $location.path('/'+$routeParams.contr+'/show/' + item.id);
     };
 }
 
 function ShowCtrl($scope, $routeParams, $location, Grails, Flash) {
-    $scope.message = Flash.getMessage();
+	$scope.message = Flash.getMessage();
+    console.log("nonii")
+    console.log($scope.message);
 
-    Grails.get({id: $routeParams.id}, function(item) {
+    Grails.get({contr: $routeParams.contr, id: $routeParams.id}, function(item) {
         $scope.item = item;
     }, errorHandler.curry($scope, $location, Flash));
 
+    $scope.edit = function(item) {
+    	$location.path('/'+$routeParams.contr+'/edit/' + item.id);
+    };
+    
     $scope.delete = function(item) {
-        item.$delete(function(response) {
+        item.$delete({contr: $routeParams.contr}, function(response) {
             Flash.success(response.message);
-            $location.path('/list');
+            $location.path('/'+$routeParams.contr+'/list');
         }, errorHandler.curry($scope, $location, Flash));
     };
 }
@@ -193,29 +200,30 @@ function CreateCtrl($scope, $location, Grails, Flash) {
     $scope.item = new Grails;
 
     $scope.save = function(item) {
-        item.$save(function(response) {
+        item.$save({contr: $routeParams.contr}, function(response) {
             Flash.success(response.message);
-            $location.path('/show/' + response.id);
+            $location.path('/'+$routeParams.contr+'/show/' + response.id);
         }, errorHandler.curry($scope, $location, Flash));
     };
 }
 
 function EditCtrl($scope, $routeParams, $location, Grails, Flash) {
-    Grails.get({id: $routeParams.id}, function(item) {
+	console.log("EditCtrl:"+ $routeParams.contr)
+    Grails.get({contr: $routeParams.contr, id: $routeParams.id}, function(item) {
         $scope.item = item;
     }, errorHandler.curry($scope, $location, Flash));
 
     $scope.update = function(item) {
-        item.$update(function(response) {
+        item.$update({contr: $routeParams.contr}, function(response) {
             Flash.success(response.message);
-            $location.path('/show/' + response.id);
+            $location.path('/'+$routeParams.contr+'/show/' + response.id);
         }, errorHandler.curry($scope, $location, Flash));
     };
 
     $scope.delete = function(item) {
-        item.$delete(function(response) {
+        item.$delete({contr: $routeParams.contr}, function(response) {
             Flash.success(response.message);
-            $location.path('/list');
+            $location.path('/'+$routeParams.contr+'/list');
         }, errorHandler.curry($scope, $location, Flash));
     };
 }
