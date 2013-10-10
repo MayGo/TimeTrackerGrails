@@ -165,8 +165,6 @@
 			var rect = miniChart.selectAll("rect").data(self.trackItems, self.plugin.keyFunction);
 
 			rect.enter().insert("rect", ":first-child").attr('class', 'miniItems').
-				attr("rx", 5).
-				attr("ry", 5).
 				style("fill", function(d) {
 					return d.color;
 				}).attr("y", 0)
@@ -202,7 +200,12 @@
 			 * enable brush selecting //alert(2); self.plugin.toggleBrush(true);
 			 * });
 			 */
-			mainChart.selectAll(".trackItems").data(self.trackItems, self.plugin.keyFunction).enter().append("rect").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
+			mainChart.selectAll(".trackItems")
+			.data(self.trackItems, self.plugin.keyFunction)
+			.enter()
+			.append("rect")
+			.attr('class', 'trackItem')
+			.style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
 				return self.xScale(d.beginDate);
@@ -395,7 +398,7 @@
 
 			var rect = svg.select(".mainChart").selectAll("rect").data(tasks, self.plugin.keyFunction);
 
-			rect.enter().insert("rect", ":first-child").attr('class', 'trackItem').attr("rx", 5).attr("ry", 5).style("fill", function(d) {
+			rect.enter().insert("rect", ":first-child").attr('class', 'trackItem').style("fill", function(d) {
 				return d.color;
 			}).attr("y", 0).attr("x", function(d) {
 				return self.xScale(d.beginDate);
