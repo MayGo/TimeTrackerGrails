@@ -33,20 +33,20 @@
 		var seconds = Math.ceil(divisor_for_seconds);
 		var formattedTime = "";
 		if (hours > 0)
-			formattedTime += hours + " h ";
+			formattedTime += hours + "h ";
 
 		if (minutes > 0)
-			formattedTime += minutes + " m ";
+			formattedTime += minutes + "m ";
 		else if (hours > 0 && minutes == 0)
-			formattedTime += "0 m ";
+			formattedTime += "0m ";
 
 		if (seconds > 0)
-			formattedTime += seconds + " s ";
+			formattedTime += seconds + "s ";
 		else if (str != "" && seconds == 0)
-			formattedTime += "0 s ";
+			formattedTime += "0s ";
 
 		if (formattedTime == "")
-			formattedTime = msleft + " ms";
+			formattedTime = msleft + "ms";
 		return formattedTime;
 	}
 
@@ -187,13 +187,6 @@
 						selectAll("rect").attr('height', miniHeight)//.
 						//select(".background").attr('height', margin.top)
 			self.miniChartBrush=miniChartBrush
-			//svg.select(".x").transition().call(self.xAxis);
-			//svg.select(".y").transition().call(self.yAxis);
-			
-			
-			
-			
-			
 			
 			/*
 			 * d3.select("svg").on("click", function(d, i) { // set var to
@@ -435,7 +428,10 @@
 							var data = d;
 							var duration=d.endDate-d.beginDate;
 							var durationFormatted=msToTime(duration); 
-							return data.desc+"<br/>"+durationFormatted;
+							var format = d3.time.format("%H:%M:%S");
+							return data.desc + "<br/>" 
+							+ format(new Date(d.beginDate)) + " - " + format(new Date(d.endDate))
+							+ " (" + durationFormatted + ")";
 						},
 						title : function(event, api) {
 							var data = d;
