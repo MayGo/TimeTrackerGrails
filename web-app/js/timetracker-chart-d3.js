@@ -291,7 +291,7 @@
 
 			var selectionTool = d3.svg.brush().x(self.xScale).on("brushstart", self.plugin.selectionToolBrushStart).on("brush", self.plugin.selectionToolBrushMove).on("brushend", self.plugin.selectionToolBrushEnd);
 
-			var selectionToolSvg = d3.select("svg").append('g').attr('class', 'selectionTool').attr("transform", "translate(" + margin.left + ", " + margin.top + ")").call(selectionTool)
+			var selectionToolSvg = d3.select("svg").append('g').attr('class', 'selectionTool').attr("transform", "translate(" + margin.left + ", 0)").call(selectionTool)
 			// make it available in other functions
 			self.selectionTool = selectionTool;
 			$('html').click(function() {
