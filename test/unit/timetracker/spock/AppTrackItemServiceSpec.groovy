@@ -9,6 +9,7 @@ import timetracker.AppTrackItem
 import timetracker.TrackItem
 import timetracker.TrackTag
 import timetracker.Color
+import grails.util.Holders
 
 @TestFor(AppTrackItemService)
 @Mock([AppTrackItem,TrackItem, TrackTag, Color])
@@ -101,5 +102,43 @@ class AppTrackItemServiceSpec  extends Specification{
 		(1..3).each { i -> appTrackItems<<service.saveActiveWindow(createAppTrackItem("Tag1", "Title")) }
 		expect:
 		AppTrackItem.count()==1
+	}
+	def "When computer has been shutdown, there should be Inactive period between same items"(){
+		given:
+		//Insert one
+		service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		AppTrackItem a1 = service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		
+		//Modify configuration so, Idle item is created on next saveActiveWindow
+		Holders.config.collectIntervalInMs=0.1
+		Holders.config.addShutdownStatusAfterMs=0.1
+		
+		AppTrackItem a2 = service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		Holders.config.collectIntervalInMs=1000
+		Holders.config.addShutdownStatusAfterMs=1000
+		service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		expect:
+		AppTrackItem.count()==3
+		a1.beginDate != a2.beginDate
+		a1.endDate != a2.endDate
+	}
+	def "When computer has been shutdown, there should be Inactive period between different items"(){
+		given:
+		//Insert one
+		service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		AppTrackItem a1 = service.saveActiveWindow(createAppTrackItem("Tag1", "Title"))
+		
+		//Modify configuration so, Idle item is created on next saveActiveWindow
+		Holders.config.collectIntervalInMs=0.1
+		Holders.config.addShutdownStatusAfterMs=0.1
+		
+		AppTrackItem a2 = service.saveActiveWindow(createAppTrackItem("Tag2", "Title"))
+		Holders.config.collectIntervalInMs=1000
+		Holders.config.addShutdownStatusAfterMs=1000
+		service.saveActiveWindow(createAppTrackItem("Tag2", "Title"))
+		expect:
+		AppTrackItem.count()==3
+		a1.beginDate != a2.beginDate
+		a1.endDate != a2.endDate
 	}
 }

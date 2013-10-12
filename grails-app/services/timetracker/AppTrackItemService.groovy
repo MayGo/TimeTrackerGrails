@@ -9,7 +9,7 @@ class AppTrackItemService {
 	Date lastRunTime=new Date()
 	
 	private void addInactivePeriod(beginDate, endDate){
-		println "adding inactive"
+		log.debug "Adding inactive AppTrackItem"
 		AppTrackItem appTrackItem = AppTrackItem.inactiveInstance()
 		appTrackItem.beginDate=beginDate
 		appTrackItem.endDate=endDate
@@ -30,6 +30,8 @@ class AppTrackItemService {
 		// If it has been to long from last run, then computer has been in sleep/hibernate
 		if((now.getTime()-lastRunTime.getTime())>(Holders.config.collectIntervalInMs + Holders.config.addShutdownStatusAfterMs)){
 			lastAppTrackItem = null
+			lastAppTrackItemSaved = null
+			beforelastAppTrackItem = null
 			addInactivePeriod(lastRunTime, now)
 		}
 		
