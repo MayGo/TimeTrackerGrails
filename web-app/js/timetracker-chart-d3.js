@@ -64,6 +64,7 @@
 
 		self.miniHeight = 30;
 		self.axisHeight = 30;
+		self.brushSelectionBoxHeight = 20;
 		self.height = $(this.element).height();
 		self.width = $(this.element).width();
 
@@ -247,8 +248,8 @@
 			var svg = d3.select("svg");
 
 			var brushSvg = svg.append('g').attr('class', 'brush').attr("transform", "translate(" + margin.left + ", " + 0 + ")").call(brush)
-			brushSvg.selectAll("rect").attr('height', height)
-			brushSvg.select(".background").attr('height', margin.top)
+			brushSvg.selectAll("rect").attr('height', self.mainHeight)
+			brushSvg.select(".background").attr('height', self.brushSelectionBoxHeight)
 			// make it available in other functions
 			self.brush = brush;
 			$('html').click(function() {
