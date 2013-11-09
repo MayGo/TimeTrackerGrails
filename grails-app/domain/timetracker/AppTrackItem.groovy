@@ -3,7 +3,10 @@ package timetracker
 
 class AppTrackItem extends TrackItem{
 	String title
-
+	static TAG_STATUS = "Status"
+	static TAG_STATUS_IDLE = "Idle"
+	static TAG_STATUS_INACTIVE = "Inactive"
+	static Map notActiveNameAndTitle = ["Status":[TAG_STATUS_IDLE,TAG_STATUS_INACTIVE] ]//"$TAG_STATUS" does not work as key
 	static constraints = {
 	}
 	static mapping = { title type: 'text' }
@@ -12,11 +15,11 @@ class AppTrackItem extends TrackItem{
 	//static private inactiveAppTrackItem
 	
 	static AppTrackItem idleInstance(){
-		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag("Status"), title:"Idle")
+		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(TAG_STATUS), title: TAG_STATUS_IDLE)
 	}
 	
 	static AppTrackItem inactiveInstance(){
-		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag("Status"), title:"Inactive")
+		new AppTrackItem(tag:TrackTagService.getOrCreateTrackTag(TAG_STATUS), title: TAG_STATUS_INACTIVE)
 	}
 	
 	String toString(){

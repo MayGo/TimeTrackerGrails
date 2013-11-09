@@ -29,7 +29,7 @@ class TimelineService {
 			}
 			
 			//maxResults(10)
-			//order("beginDate", "desc")
+			order("beginDate", "asc")
 		}
     }
 }

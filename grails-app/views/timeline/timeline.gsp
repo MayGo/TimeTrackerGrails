@@ -31,7 +31,7 @@
        
        $('#timetrackerChart').timetrackerD3({
          trackItems: ${appTrackItemInstanceList},
-         trackNames:["AppTrackItem", "LogTrackItem"],
+         trackNames:["AppTrackItem", "LogTrackItem", "StateTrackItem"],
          defaultBeginDate:${day},
          onBrushSelection:onBrushSelection,
          onTrackItemChange:onTrackItemChange

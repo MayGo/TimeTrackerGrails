@@ -24,7 +24,8 @@ class TimelineController {
 		
 		today.clearTime()
 		day.clearTime()
-		def l=timelineService.trackItemsInBetween(day, day+1)?.collect{
+		List<TrackItem> trackItems=timelineService.trackItemsInBetween(day, day+1)
+		def items=trackItems?.collect{
 			[
 				taskName:it.getClass().getSimpleName(),
 				id:it.id,
@@ -35,7 +36,40 @@ class TimelineController {
 				endDate:it.endDate.getTime()
 			]
 		}
+		List stateItems=[]
+		trackItems.each{
+			if(it.getClass()==AppTrackItem.class){
+				def currentItem=[taskName:"StateTrackItem",
+				id:it.id,
+				name: "Active",
+				desc:"",
+				color: "#19E512",
+				beginDate:it.beginDate.getTime(),
+				endDate:it.endDate.getTime()]
+				if(AppTrackItem.notActiveNameAndTitle.containsKey(it.tag.name) && AppTrackItem.notActiveNameAndTitle[it.tag.name].find{s->s==it.title}){
+					//println "inactive item"
+					currentItem.name="Inactive"
+					currentItem.color = "#FF2424"
+				}
+				def lastItem = (stateItems.size()>0)?stateItems?.last():null
+				if(lastItem){
+				//	println "on viimane"
+					if(lastItem.name == currentItem.name){
+					//	println "samad nimed"
+						stateItems.last().endDate=currentItem.endDate
+					}else{
+					//	println "pole samad"
+						stateItems << currentItem
+					}
+				}else{
+				//println "pole viimast"
+					stateItems<<currentItem
+				}
+				//println it
+			}
+		}
+		items.addAll(stateItems)
 		//new File("testData.json").write((l as JSON).toString())
-		[appTrackItemInstanceList: l as JSON, today:today.getTime(), day:day.getTime()]
+		[appTrackItemInstanceList: items as JSON, today:today.getTime(), day:day.getTime()]
 	}
 }
